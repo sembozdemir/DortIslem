@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/backgroundLayout"
+    android:background="@color/easy_color"
     tools:context=".MainActivity"
     android:weightSum="1">
 
@@ -14,11 +16,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
-            android:textSize="50sp"
+            android:text="99 + 99 = 999"
+            android:textSize="55sp"
             android:id="@+id/textViewIslem"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/text_color" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -28,8 +31,30 @@
             android:id="@+id/textViewScore"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="10dp" />
+            android:layout_margin="10dp"
+            android:textColor="@color/text_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Difficulty"
+            android:textSize="20sp"
+            android:id="@+id/textViewDifficulty"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="10dp"
+            android:textColor="@color/text_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:textSize="20sp"
+            android:id="@+id/textViewTime"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:textColor="@color/text_color" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -43,7 +68,8 @@
             android:layout_height="wrap_content"
             android:text="@string/button_false_label"
             android:id="@+id/buttonFalse"
-            android:layout_margin="20dp"/>
+            android:layout_margin="20dp"
+            android:textColor="@color/text_color" />
 
         <Button
             android:layout_width="wrap_content"
@@ -51,7 +77,8 @@
             android:text="@string/button_true_label"
             android:id="@+id/buttonTrue"
             android:layout_toRightOf="@+id/buttonFalse"
-            android:layout_margin="20dp" />
+            android:layout_margin="20dp"
+            android:textColor="@color/text_color" />
     </RelativeLayout>
 
 </LinearLayout>

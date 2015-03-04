@@ -1,35 +1,31 @@
 package com.sembozdemir.dortislem;
 
 /**
- * Created by Semih Bozdemir on 21.2.2015.
- *
- * TASARIM YANLIS OLDU.
- * DortIslem sınıfı interface olmalı ve ondan toplama, cikarma, carpma, bolme islemleri turemeli
- * bu sınıf toplama isleminin gerceklestirimi oldu şimdilik
- *
- * TODO: Bu sınıf ve builder'ı baz alınarak tasarım yeniden yapılmalı
- *
+ * Created by Semih Bozdemir on 2.3.2015.
  */
-public class DortIslem {
-
+public abstract class AbstractDortIslem {
+    // zorluk seviyeleri
     public static final int EASY = 1;
     public static final int MEDIUM = 2;
     public static final int HARD = 3;
     public static final int EXPERT = 4;
+    public static final int GENIUS = 5;
 
-    // Ex: x + y = z or x - y = z etc.
-    private int x,y,z;
-
-    private int difficulty;
-    private boolean truth;
-
-    public DortIslem() {
+    protected AbstractDortIslem() {
         x = 0;
         y = 0;
         z = 0;
         difficulty = 1;
         truth = true;
     }
+
+    // Ex: x + y = z or x - y = z or x * y = z or x / y = z etc.
+    protected int x;
+    protected int y;
+    protected int z;
+
+    protected int difficulty;
+    protected boolean truth;
 
     public void setX(int x) {
         this.x = x;
@@ -45,6 +41,10 @@ public class DortIslem {
 
     public void setDifficulty(int difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public void setTruth(boolean truth) {
+        this.truth = truth;
     }
 
     public int getZ() {
@@ -63,22 +63,13 @@ public class DortIslem {
         return difficulty;
     }
 
-    public boolean isTruth() {
+    public boolean isTrue() {
         return truth;
-    }
-
-    public void setTruth(boolean truth) {
-        this.truth = truth;
     }
 
     @Override
     public String toString() {
-        final StringBuilder s = new StringBuilder();
-        s.append(x)
-                .append(" + ")
-                .append(y)
-                .append(" = ")
-                .append(z);
-        return s.toString();
+        return super.toString();
+        // it will be implemented in subclasses
     }
 }
