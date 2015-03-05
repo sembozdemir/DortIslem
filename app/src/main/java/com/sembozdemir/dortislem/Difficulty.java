@@ -36,7 +36,6 @@ public class Difficulty extends Observer {
 
     @Override
     public void update() {
-        // TODO: score değiştiğinde level e olacaklar
         // TODO: zorluk skalasını gözden geçir
         if (0 < score.getState() && score.getState() <= 100)
             level = EASY;

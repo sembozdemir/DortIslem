@@ -52,8 +52,8 @@ public class Score {
         setState(getState() + difficulty.getLevel()*10);
     }
 
-    public void minus(Difficulty difficulty) {
-        // TODO: kafadan attım daha sonra kontrol et
+    /*public void minus(Difficulty difficulty) {
+        // kafadan attım daha sonra kontrol et
         setState(getState() - difficulty.getLevel()*50);
-    }
+    }*/
 }

@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
     protected Score mScore;
     protected Random mIslemSecici;
     protected Difficulty mDifficulty;
-    // TODO: protected int mArdardaBilmeSayisi;
     protected GameTimer mTimer;
 
     @Override
@@ -100,6 +99,7 @@ public class MainActivity extends Activity {
     }
 
     private void handleLevelChanges() {
+        // TODO: Animasyonlar eklenmeli, daha güzel bir görüntü elde edilmeli. Tasarım da değişiklikler yapılmalı
         switch (mDifficulty.getLevel()) {
             case Difficulty.EASY:
                 textViewDifficulty.setText("EASY");

@@ -15,7 +15,7 @@ public class CikarmaBuilder extends AbstractDortIslemBuilder {
 
         if (islem.isTrue()) {
             z = islem.getX() - islem.getY();
-        } else { // TODO : Yanlışşsa sadece fazlasını gosteriyor eksigini de gosterebilmeli
+        } else { // TODO : Yanlışşsa sadece fazlasını gosteriyor eksigini de gosterebilmeli veya farklı bir yontem izlenmeli negatifi gosterilerek şaşırtılmalı mesela
             z = islem.getX() - islem.getY();
             switch (islem.getDifficulty().getLevel()) {
                 case Difficulty.EASY:
