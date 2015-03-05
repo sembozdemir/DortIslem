@@ -15,18 +15,18 @@ public class CikarmaBuilder extends AbstractDortIslemBuilder {
 
         if (islem.isTrue()) {
             z = islem.getX() - islem.getY();
-        } else { // TODO : Yanlışşsa sadece fazlasını gosteriyor eksigini de gosterebilmeli
+        } else { // TODO : Yanlışşsa sadece fazlasını gosteriyor eksigini de gosterebilmeli veya farklı bir yontem izlenmeli negatifi gosterilerek şaşırtılmalı mesela
             z = islem.getX() - islem.getY();
-            switch (islem.getDifficulty()) {
-                case AbstractDortIslem.EASY:
+            switch (islem.getDifficulty().getLevel()) {
+                case Difficulty.EASY:
                     z += random.nextInt(3) + 1; break;
-                case AbstractDortIslem.MEDIUM:
+                case Difficulty.MEDIUM:
                     z += random.nextInt(13) + 3; break;
-                case AbstractDortIslem.HARD:
+                case Difficulty.HARD:
                     z += random.nextInt(23) + 3; break;
-                case AbstractDortIslem.EXPERT:
+                case Difficulty.EXPERT:
                     z += random.nextInt(99) + 33; break;
-                case AbstractDortIslem.GENIUS:
+                case Difficulty.GENIUS:
                     z += random.nextInt(99) + 33; break;
                 default: z += 3;
             }

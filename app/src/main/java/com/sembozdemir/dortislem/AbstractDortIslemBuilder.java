@@ -13,7 +13,7 @@ public abstract class AbstractDortIslemBuilder {
         random = new Random();
     }
 
-    public void setDifficulty(int difficulty) {
+    public void setDifficulty(Difficulty difficulty) {
         islem.setDifficulty(difficulty);
     }
 
@@ -42,16 +42,16 @@ public abstract class AbstractDortIslemBuilder {
     private int getANumber() {
         int n;
 
-        switch (islem.getDifficulty()) {
-            case AbstractDortIslem.EASY:
+        switch (islem.getDifficulty().getLevel()) {
+            case Difficulty.EASY:
                 n = random.nextInt(4) + 1; break;
-            case AbstractDortIslem.MEDIUM:
+            case Difficulty.MEDIUM:
                 n = random.nextInt(8) + 1; break;
-            case AbstractDortIslem.HARD:
+            case Difficulty.HARD:
                 n = random.nextInt(39) + 10; break;
-            case AbstractDortIslem.EXPERT:
+            case Difficulty.EXPERT:
                 n = random.nextInt(89) + 10; break;
-            case AbstractDortIslem.GENIUS:
+            case Difficulty.GENIUS:
                 n = random.nextInt(899) + 100; break;
             default: n = 0;
         }
