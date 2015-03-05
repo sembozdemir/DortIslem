@@ -4,28 +4,22 @@ package com.sembozdemir.dortislem;
  * Created by Semih Bozdemir on 2.3.2015.
  */
 public abstract class AbstractDortIslem {
-    // zorluk seviyeleri
-    public static final int EASY = 1;
-    public static final int MEDIUM = 2;
-    public static final int HARD = 3;
-    public static final int EXPERT = 4;
-    public static final int GENIUS = 5;
-
-    protected AbstractDortIslem() {
-        x = 0;
-        y = 0;
-        z = 0;
-        difficulty = 1;
-        truth = true;
-    }
 
     // Ex: x + y = z or x - y = z or x * y = z or x / y = z etc.
     protected int x;
     protected int y;
     protected int z;
 
-    protected int difficulty;
+    protected Difficulty difficulty;
     protected boolean truth;
+
+    protected AbstractDortIslem() {
+        x = 0;
+        y = 0;
+        z = 0;
+        difficulty = new Difficulty(Difficulty.EASY);
+        truth = true;
+    }
 
     public void setX(int x) {
         this.x = x;
@@ -39,7 +33,7 @@ public abstract class AbstractDortIslem {
         this.z = z;
     }
 
-    public void setDifficulty(int difficulty) {
+    public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -59,7 +53,7 @@ public abstract class AbstractDortIslem {
         return y;
     }
 
-    public int getDifficulty() {
+    public Difficulty getDifficulty() {
         return difficulty;
     }
 

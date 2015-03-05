@@ -1,8 +1,9 @@
 package com.sembozdemir.dortislem;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -12,7 +13,7 @@ import android.widget.Toast;
 import java.util.Random;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     private static final int TOPLAMA = 0;
     private static final int CIKARMA = 1;
@@ -26,10 +27,10 @@ public class MainActivity extends ActionBarActivity {
     protected TextView textViewDifficulty;
     protected TextView textViewTime;
     protected AbstractDortIslem mIslem;
-    protected int mScore;
+    protected Score mScore;
     protected Random mIslemSecici;
-    protected int mDifficulty;
-    protected int mArdardaBilmeSayisi;
+    protected Difficulty mDifficulty;
+    // TODO: protected int mArdardaBilmeSayisi;
     protected GameTimer mTimer;
 
     @Override
@@ -49,13 +50,12 @@ public class MainActivity extends ActionBarActivity {
         backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
 
         // Score is 0 in the beginning
-        mArdardaBilmeSayisi = 0;
-        mScore = 0;
-        textViewScore.setText("0");
+        mScore = new Score(0);
+        textViewScore.setText(mScore.toString());
 
         // Difficulty is EASY in the beginning
-        mDifficulty = AbstractDortIslem.EASY;
-        textViewDifficulty.setText(String.valueOf(mDifficulty));
+        mDifficulty = new Difficulty(mScore);
+        textViewDifficulty.setText(mDifficulty.toString());
 
         // initiliaze IslemSecici
         mIslemSecici = new Random();
@@ -67,8 +67,8 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (mIslem.isTrue()) {
                     plusScore();
-                } else minusScore();
-                newDortIslem();
+                    newDortIslem();
+                } else gameOver();
             }
         });
 
@@ -77,69 +77,47 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (!(mIslem.isTrue())) {
                     plusScore();
-                } else minusScore();
-                newDortIslem();
+                    newDortIslem();
+                } else gameOver();
             }
         });
 
     }
 
-    private void minusScore() {
+    /*private void minusScore() {
         mTimer.cancel();
-        mArdardaBilmeSayisi = 0;
-        mScore = mScore/2 ;
+        mScore.minus(mDifficulty);
         textViewScore.setText(String.valueOf(mScore));
-        updateDifficulty();
-    }
+        handleLevelChanges();
+    }*/
 
     private void plusScore() {
         mTimer.cancel();
-        mArdardaBilmeSayisi++;
-        int ardArdaBilmeSkoru = 0;
-        if(mArdardaBilmeSayisi > 5)
-            ardArdaBilmeSkoru = mArdardaBilmeSayisi*5;
-        mScore = mScore + mDifficulty*10 + ardArdaBilmeSkoru + TEST_MODE_EXTRA_SCORE;
+        // Zorluk seviyesine göre scoru ayarla
+        mScore.plus(mDifficulty);
         textViewScore.setText(String.valueOf(mScore));
-        updateDifficulty();
-    }
-
-    private void updateDifficulty() {
-        // TODO: zorluk skalasını gözden geçir
-        if (mScore < 0)
-            gameOver();
-        if (0 < mScore && mScore <= 100)
-            mDifficulty = AbstractDortIslem.EASY;
-        else if (100 < mScore && mScore <= 500)
-            mDifficulty = AbstractDortIslem.MEDIUM;
-        else if (500 < mScore && mScore <= 2500)
-            mDifficulty = AbstractDortIslem.HARD;
-        else if (2500 < mScore && mScore <= 10000)
-            mDifficulty = AbstractDortIslem.EXPERT;
-        else if (10000 < mScore)
-            mDifficulty = AbstractDortIslem.GENIUS;
-
         handleLevelChanges();
     }
 
     private void handleLevelChanges() {
-        switch (mDifficulty) {
-            case AbstractDortIslem.EASY:
+        switch (mDifficulty.getLevel()) {
+            case Difficulty.EASY:
                 textViewDifficulty.setText("EASY");
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
                 break;
-            case AbstractDortIslem.MEDIUM:
+            case Difficulty.MEDIUM:
                 textViewDifficulty.setText("MEDIUM");
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.medium_color));
                 break;
-            case AbstractDortIslem.HARD:
+            case Difficulty.HARD:
                 textViewDifficulty.setText("HARD");
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.hard_color));
                 break;
-            case AbstractDortIslem.EXPERT:
+            case Difficulty.EXPERT:
                 textViewDifficulty.setText("EXPERT");
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.expert_color));
                 break;
-            case AbstractDortIslem.GENIUS:
+            case Difficulty.GENIUS:
                 textViewDifficulty.setText("GENIUS");
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.genius_color));
                 break;
@@ -151,7 +129,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void newDortIslem() {
-        mTimer = new GameTimer(setTime(), 1000);
+        mTimer = new GameTimer(getTime(), 1000);
         mTimer.start();
 
         AbstractDortIslemBuilder builder;
@@ -173,23 +151,23 @@ public class MainActivity extends ActionBarActivity {
         textViewIslem.setText(mIslem.toString());
     }
 
-    private long setTime() {
+    private long getTime() {
         int sn = 0;
 
-        switch (mDifficulty) {
-            case AbstractDortIslem.EASY:
+        switch (mDifficulty.getLevel()) {
+            case Difficulty.EASY:
                 sn = 2;
                 break;
-            case AbstractDortIslem.MEDIUM:
+            case Difficulty.MEDIUM:
                 sn = 3;
                 break;
-            case AbstractDortIslem.HARD:
+            case Difficulty.HARD:
                 sn = 4;
                 break;
-            case AbstractDortIslem.EXPERT:
+            case Difficulty.EXPERT:
                 sn = 5;
                 break;
-            case AbstractDortIslem.GENIUS:
+            case Difficulty.GENIUS:
                 sn = 6;
                 break;
             default:
@@ -199,9 +177,17 @@ public class MainActivity extends ActionBarActivity {
         return 1000*sn;
     }
 
-    private void gameOver() {
+    public void gameOver() {
+        mTimer.cancel();
         // TODO: Oyun bitişini farklı yansıt. Bu geçici çözüm.
-        Toast.makeText(this, "Oyun bitti", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Oyun bitti", Toast.LENGTH_SHORT).show();
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle("Oyun Bitti");
+        dialogBuilder.setMessage("Puanınız: " + mScore.getState());
+        dialogBuilder.setPositiveButton("OK", null);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
     }
 
     public class GameTimer extends CountDownTimer {
