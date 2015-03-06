@@ -19,13 +19,13 @@ public class CikarmaBuilder extends AbstractDortIslemBuilder {
             z = islem.getX() - islem.getY();
             switch (islem.getDifficulty().getLevel()) {
                 case Difficulty.EASY:
-                    z += random.nextInt(3) + 1; break;
+                    z += random.nextInt(2) + 1; break;
                 case Difficulty.MEDIUM:
-                    z += random.nextInt(13) + 3; break;
+                    z += random.nextInt(4) + 3; break;
                 case Difficulty.HARD:
-                    z += random.nextInt(23) + 3; break;
+                    z += random.nextInt(9) + 3; break;
                 case Difficulty.EXPERT:
-                    z += random.nextInt(99) + 33; break;
+                    z += random.nextInt(19) + 33; break;
                 case Difficulty.GENIUS:
                     z += random.nextInt(99) + 33; break;
                 default: z += 3;

@@ -10,6 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+
 import java.util.Random;
 
 
@@ -17,20 +21,19 @@ public class MainActivity extends Activity {
 
     private static final int TOPLAMA = 0;
     private static final int CIKARMA = 1;
-    private static final int TEST_MODE_EXTRA_SCORE = 0;
 
     protected LinearLayout backgroundLayout;
     protected Button buttonTrue;
     protected Button buttonFalse;
     protected TextView textViewIslem;
     protected TextView textViewScore;
-    protected TextView textViewDifficulty;
-    protected TextView textViewTime;
     protected AbstractDortIslem mIslem;
     protected Score mScore;
     protected Random mIslemSecici;
     protected Difficulty mDifficulty;
     protected GameTimer mTimer;
+    protected RoundCornerProgressBar mProgressTimer;
+    protected RoundCornerProgressBar mProgressDifficulties[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,18 +46,25 @@ public class MainActivity extends Activity {
         buttonFalse = (Button) findViewById(R.id.buttonFalse);
         textViewIslem = (TextView) findViewById(R.id.textViewIslem);
         textViewScore = (TextView) findViewById(R.id.textViewScore);
-        textViewDifficulty = (TextView) findViewById(R.id.textViewDifficulty);
-        textViewTime = (TextView) findViewById(R.id.textViewTime);
+        mProgressTimer = (RoundCornerProgressBar) findViewById(R.id.progressTimer);
+        mProgressDifficulties = new RoundCornerProgressBar[]{null,
+                (RoundCornerProgressBar) findViewById(R.id.progressEasy),
+                (RoundCornerProgressBar) findViewById(R.id.progressMedium),
+                (RoundCornerProgressBar) findViewById(R.id.progressHard),
+                (RoundCornerProgressBar) findViewById(R.id.progressExpert),
+                (RoundCornerProgressBar) findViewById(R.id.progressGenius)};
 
-        backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
 
         // Score is 0 in the beginning
         mScore = new Score(0);
         textViewScore.setText(mScore.toString());
 
         // Difficulty is EASY in the beginning
+        backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
         mDifficulty = new Difficulty(mScore);
-        textViewDifficulty.setText(mDifficulty.toString());
+        mProgressDifficulties[Difficulty.EASY].setProgress(1);
+        mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
+
 
         // initiliaze IslemSecici
         mIslemSecici = new Random();
@@ -95,41 +105,60 @@ public class MainActivity extends Activity {
         // Zorluk seviyesine göre scoru ayarla
         mScore.plus(mDifficulty);
         textViewScore.setText(String.valueOf(mScore));
+        YoYo.with(Techniques.Pulse).duration(700).playOn(textViewScore);
         handleLevelChanges();
     }
 
     private void handleLevelChanges() {
-        // TODO: Animasyonlar eklenmeli, daha güzel bir görüntü elde edilmeli. Tasarım da değişiklikler yapılmalı
         switch (mDifficulty.getLevel()) {
             case Difficulty.EASY:
-                textViewDifficulty.setText("EASY");
+                mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
+                handleProgressDifficulties();
                 break;
             case Difficulty.MEDIUM:
-                textViewDifficulty.setText("MEDIUM");
+                mProgressTimer.setProgressColor(getResources().getColor(R.color.medium_color));
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.medium_color));
+                handleProgressDifficulties();
                 break;
             case Difficulty.HARD:
-                textViewDifficulty.setText("HARD");
+                mProgressTimer.setProgressColor(getResources().getColor(R.color.hard_color));
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.hard_color));
+                handleProgressDifficulties();
                 break;
             case Difficulty.EXPERT:
-                textViewDifficulty.setText("EXPERT");
+                mProgressTimer.setProgressColor(getResources().getColor(R.color.expert_color));
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.expert_color));
+                handleProgressDifficulties();
                 break;
             case Difficulty.GENIUS:
-                textViewDifficulty.setText("GENIUS");
+                mProgressTimer.setProgressColor(getResources().getColor(R.color.genius_color));
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.genius_color));
+                handleProgressDifficulties();
                 break;
             default:
-                textViewDifficulty.setText(String.valueOf(mDifficulty));
+                mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
                 backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
+                handleProgressDifficulties();
         }
 
     }
 
+    private void handleProgressDifficulties() {
+        int level = mDifficulty.getLevel();
+        for(int i = 1 ; i <= Difficulty.GENIUS ; i++) {
+            if (i <= level) {
+                mProgressDifficulties[i].setProgress(1);
+            } else {
+                mProgressDifficulties[i].setProgress(0);
+            }
+        }
+    }
+
     private void newDortIslem() {
-        mTimer = new GameTimer(getTime(), 1000);
+        mTimer = new GameTimer(getTime(), 1);
+        mProgressTimer.setMax(getTime());
+        mProgressTimer.setProgress(getTime());
         mTimer.start();
 
         AbstractDortIslemBuilder builder;
@@ -139,6 +168,7 @@ public class MainActivity extends Activity {
             case CIKARMA:
                 builder = new CikarmaBuilder(); break;
             // TODO : diger islemler eklenecek
+            // TODO : veya sadece Freaking Division olabilir. Bölünen progressTimer'ın üstünde bölen altında olabilir. aşağıya da doğru yanlış yerine 4 tane ardışık sayı konur oyuncu doğru olanı seçer.
             default:
                 builder = new ToplamaBuilder(); break;
         }
@@ -152,29 +182,29 @@ public class MainActivity extends Activity {
     }
 
     private long getTime() {
-        int sn = 0;
+        double sn;
 
         switch (mDifficulty.getLevel()) {
             case Difficulty.EASY:
-                sn = 2;
+                sn = 1;
                 break;
             case Difficulty.MEDIUM:
-                sn = 3;
+                sn = 1.5;
                 break;
             case Difficulty.HARD:
-                sn = 4;
+                sn = 2;
                 break;
             case Difficulty.EXPERT:
-                sn = 5;
+                sn = 2.5;
                 break;
             case Difficulty.GENIUS:
-                sn = 6;
+                sn = 3;
                 break;
             default:
-                sn = 3;
+                sn = 1;
         }
 
-        return 1000*sn;
+        return (long) (1000*sn);
     }
 
     public void gameOver() {
@@ -205,9 +235,8 @@ public class MainActivity extends Activity {
 
         @Override
         public void onTick(long millisUntilFinished) {
-            // TODO: UI da timeri bir geri sayım olarak değil de, progress bar olarak gösterebilrsin.
             // Burada, UI da timer bir şekilde ifade edilecek.
-            textViewTime.setText(String.valueOf(millisUntilFinished / 1000));
+            mProgressTimer.setProgress(millisUntilFinished);
         }
 
         @Override

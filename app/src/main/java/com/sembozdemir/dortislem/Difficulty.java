@@ -39,13 +39,13 @@ public class Difficulty extends Observer {
         // TODO: zorluk skalasını gözden geçir
         if (0 < score.getState() && score.getState() <= 100)
             level = EASY;
-        else if (100 < score.getState() && score.getState() <= 500)
+        else if (100 < score.getState() && score.getState() <= 1000)
             level = MEDIUM;
-        else if (500 < score.getState() && score.getState() <= 2500)
+        else if (1000 < score.getState() && score.getState() <= 5000)
             level = HARD;
-        else if (2500 < score.getState() && score.getState() <= 10000)
+        else if (5000 < score.getState() && score.getState() <= 15000)
             level = EXPERT;
-        else if (10000 < score.getState())
+        else if (15000 < score.getState())
             level = GENIUS;
     }
 

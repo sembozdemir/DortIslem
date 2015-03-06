@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,48 +14,101 @@
         android:layout_height="match_parent"
         android:layout_weight="0.2">
 
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp">
+
+                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                    android:id="@+id/progressGenius"
+                    android:layout_height="@dimen/progressbar_difficulty_height"
+                    android:layout_width="@dimen/progressbar_difficulty_width"
+                    android:padding="@dimen/progressbar_padding"
+                    app:backgroundColor="@color/spin_background_color"
+                    app:progressColor="@color/genius_color"
+                    app:backgroundPadding="@dimen/progressbar_background_padding"
+                    app:max="1"/>
+
+                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                    android:id="@+id/progressExpert"
+                    android:layout_height="@dimen/progressbar_difficulty_height"
+                    android:layout_width="@dimen/progressbar_difficulty_width"
+                    android:padding="@dimen/progressbar_padding"
+                    app:backgroundColor="@color/spin_background_color"
+                    app:progressColor="@color/expert_color"
+                    app:backgroundPadding="@dimen/progressbar_background_padding"
+                    app:max="1"/>
+
+                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                    android:id="@+id/progressHard"
+                    android:layout_height="@dimen/progressbar_difficulty_height"
+                    android:layout_width="@dimen/progressbar_difficulty_width"
+                    android:padding="@dimen/progressbar_padding"
+                    app:backgroundColor="@color/spin_background_color"
+                    app:progressColor="@color/hard_color"
+                    app:backgroundPadding="@dimen/progressbar_background_padding"
+                    app:max="1"/>
+
+                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                    android:id="@+id/progressMedium"
+                    android:layout_height="@dimen/progressbar_difficulty_height"
+                    android:layout_width="@dimen/progressbar_difficulty_width"
+                    android:padding="@dimen/progressbar_padding"
+                    app:backgroundColor="@color/spin_background_color"
+                    app:progressColor="@color/medium_color"
+                    app:backgroundPadding="@dimen/progressbar_background_padding"
+                    app:max="1"/>
+
+                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                    android:id="@+id/progressEasy"
+                    android:layout_height="@dimen/progressbar_difficulty_height"
+                    android:layout_width="@dimen/progressbar_difficulty_width"
+                    android:padding="@dimen/progressbar_padding"
+                    app:backgroundColor="@color/spin_background_color"
+                    app:progressColor="@color/easy_color"
+                    app:backgroundPadding="@dimen/progressbar_background_padding"
+                    app:max="1"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Score"
+                android:textSize="@dimen/score_label"
+                android:id="@+id/textViewScore"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_margin="10dp"
+                android:textColor="@color/text_color" />
+        </RelativeLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="99 + 99 = 999"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:textSize="55sp"
             android:id="@+id/textViewIslem"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
             android:textColor="@color/text_color" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Score"
-            android:textSize="20sp"
-            android:id="@+id/textViewScore"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="10dp"
-            android:textColor="@color/text_color" />
+        <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+            android:id="@+id/progressTimer"
+            android:layout_height="8dp"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/textViewIslem"
+            app:backgroundColor="@color/spin_background_color"
+            app:progressColor="@color/spin_color"
+            app:backgroundPadding="2dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Difficulty"
-            android:textSize="20sp"
-            android:id="@+id/textViewDifficulty"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_margin="10dp"
-            android:textColor="@color/text_color" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Time"
-            android:textSize="20sp"
-            android:id="@+id/textViewTime"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="10dp"
-            android:textColor="@color/text_color" />
     </RelativeLayout>
 
     <RelativeLayout
