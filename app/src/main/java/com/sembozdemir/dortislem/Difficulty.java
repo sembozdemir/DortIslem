@@ -1,5 +1,7 @@
 package com.sembozdemir.dortislem;
 
+import android.content.Context;
+
 /**
  * Created by Semih Bozdemir on 4.3.2015.
  */
@@ -12,14 +14,18 @@ public class Difficulty extends Observer {
     public static final int GENIUS = 5;
 
     private int level;
+    private int color;
+    private Context context;
 
     public Difficulty(int level) {
         this.level = level;
     }
 
     // level ilk oluşturulduğunda EASY olarak oluşacak daha sonra kendi scorea göre update methodunda değişecek.
-    public Difficulty(Score score) {
+    public Difficulty(Score score, Context context) {
         level = EASY;
+        this.context = context;
+        color = context.getResources().getColor(R.color.easy_color);
         this.score = score;
 
         // add as Observer automatically
@@ -34,19 +40,33 @@ public class Difficulty extends Observer {
         this.level = level;
     }
 
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
     @Override
     public void update() {
         // TODO: zorluk skalasını gözden geçir
-        if (0 < score.getState() && score.getState() <= 100)
+        if (0 < score.getState() && score.getState() <= 100) {
             level = EASY;
-        else if (100 < score.getState() && score.getState() <= 1000)
+            color = context.getResources().getColor(R.color.easy_color);
+        } else if (100 < score.getState() && score.getState() <= 1000) {
             level = MEDIUM;
-        else if (1000 < score.getState() && score.getState() <= 5000)
+            color = context.getResources().getColor(R.color.medium_color);
+        } else if (1000 < score.getState() && score.getState() <= 5000) {
             level = HARD;
-        else if (5000 < score.getState() && score.getState() <= 15000)
+            color = context.getResources().getColor(R.color.hard_color);
+        } else if (5000 < score.getState() && score.getState() <= 15000) {
             level = EXPERT;
-        else if (15000 < score.getState())
+            color = context.getResources().getColor(R.color.expert_color);
+        } else if (15000 < score.getState()) {
             level = GENIUS;
+            color = context.getResources().getColor(R.color.genius_color);
+        }
     }
 
     @Override

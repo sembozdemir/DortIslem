@@ -2,49 +2,99 @@ package com.sembozdemir.dortislem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.norbsoft.typefacehelper.TypefaceCollection;
+import com.norbsoft.typefacehelper.TypefaceHelper;
 
-import java.util.Random;
+import info.hoang8f.widget.FButton;
 
 
 public class MainActivity extends Activity {
 
-    private static final int TOPLAMA = 0;
-    private static final int CIKARMA = 1;
-
     protected LinearLayout backgroundLayout;
-    protected Button buttonTrue;
-    protected Button buttonFalse;
-    protected TextView textViewIslem;
     protected TextView textViewScore;
-    protected AbstractDortIslem mIslem;
+    protected TextView textViewBolunen;
+    protected TextView textViewBolen;
+    protected FButton buttons[];
+    protected BolmeIslemi mIslem;
+    protected BolmeFactory mIslemFactory;
     protected Score mScore;
-    protected Random mIslemSecici;
     protected Difficulty mDifficulty;
     protected GameTimer mTimer;
     protected RoundCornerProgressBar mProgressTimer;
     protected RoundCornerProgressBar mProgressDifficulties[];
+    protected boolean isGameOverDialogShown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Initialize typeface helper
+        TypefaceCollection typeface = new TypefaceCollection.Builder()
+                .set(Typeface.BOLD, Typeface.createFromAsset(getAssets(), getString(R.string.font_path)))
+                .create();
+        TypefaceHelper.init(typeface);
         setContentView(R.layout.activity_main);
+        // Apply custom typefaces!
+        TypefaceHelper.typeface(this);
 
         // initiliaze View component
+        initViewComponents();
+        // initiliaze IslemFactory
+        mIslemFactory = new BolmeFactory();
+        // initiliaze beginning
+        initBeginning();
+
+        newIslem();
+        mTimer.cancel();
+
+        for (int i = 0 ; i < buttons.length ; i++) {
+            final int cevap = i + 2;
+            buttons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mIslem.isTrue(cevap)) {
+                        plusScore();
+                        newIslem();
+                    } else {
+                        mTimer.cancel();
+                        gameOver();
+                    }
+                }
+            });
+        }
+
+    }
+
+    private void initBeginning() {
+        // Score is 0 in the beginning
+        mScore = new Score(0);
+        textViewScore.setText(mScore.toString());
+
+        // Difficulty is EASY in the beginning
+        mDifficulty = new Difficulty(mScore, this);
+        backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
+        mProgressDifficulties[Difficulty.EASY].setProgress(1);
+        mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
+
+        isGameOverDialogShown = false;
+    }
+
+    private void initViewComponents() {
         backgroundLayout = (LinearLayout) findViewById(R.id.backgroundLayout);
-        buttonTrue = (Button) findViewById(R.id.buttonTrue);
-        buttonFalse = (Button) findViewById(R.id.buttonFalse);
-        textViewIslem = (TextView) findViewById(R.id.textViewIslem);
+        textViewBolunen = (TextView) findViewById(R.id.textViewBolunen);
+        textViewBolen = (TextView) findViewById(R.id.textViewBolen);
         textViewScore = (TextView) findViewById(R.id.textViewScore);
         mProgressTimer = (RoundCornerProgressBar) findViewById(R.id.progressTimer);
         mProgressDifficulties = new RoundCornerProgressBar[]{null,
@@ -53,95 +103,25 @@ public class MainActivity extends Activity {
                 (RoundCornerProgressBar) findViewById(R.id.progressHard),
                 (RoundCornerProgressBar) findViewById(R.id.progressExpert),
                 (RoundCornerProgressBar) findViewById(R.id.progressGenius)};
-
-
-        // Score is 0 in the beginning
-        mScore = new Score(0);
-        textViewScore.setText(mScore.toString());
-
-        // Difficulty is EASY in the beginning
-        backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-        mDifficulty = new Difficulty(mScore);
-        mProgressDifficulties[Difficulty.EASY].setProgress(1);
-        mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
-
-
-        // initiliaze IslemSecici
-        mIslemSecici = new Random();
-
-        newDortIslem();
-
-        buttonTrue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mIslem.isTrue()) {
-                    plusScore();
-                    newDortIslem();
-                } else gameOver();
-            }
-        });
-
-        buttonFalse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!(mIslem.isTrue())) {
-                    plusScore();
-                    newDortIslem();
-                } else gameOver();
-            }
-        });
-
+        buttons = new FButton[]{(FButton) findViewById(R.id.button2),
+                (FButton) findViewById(R.id.button3),
+                (FButton) findViewById(R.id.button4),
+                (FButton) findViewById(R.id.button5)};
     }
-
-    /*private void minusScore() {
-        mTimer.cancel();
-        mScore.minus(mDifficulty);
-        textViewScore.setText(String.valueOf(mScore));
-        handleLevelChanges();
-    }*/
 
     private void plusScore() {
         mTimer.cancel();
         // Zorluk seviyesine göre scoru ayarla
         mScore.plus(mDifficulty);
         textViewScore.setText(String.valueOf(mScore));
-        YoYo.with(Techniques.Pulse).duration(700).playOn(textViewScore);
+        YoYo.with(Techniques.Pulse).duration(500).playOn(textViewScore);
         handleLevelChanges();
     }
 
     private void handleLevelChanges() {
-        switch (mDifficulty.getLevel()) {
-            case Difficulty.EASY:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.MEDIUM:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.medium_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.medium_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.HARD:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.hard_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.hard_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.EXPERT:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.expert_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.expert_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.GENIUS:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.genius_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.genius_color));
-                handleProgressDifficulties();
-                break;
-            default:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-                handleProgressDifficulties();
-        }
-
+        mProgressTimer.setProgressColor(mDifficulty.getColor());
+        backgroundLayout.setBackgroundColor(mDifficulty.getColor());
+        handleProgressDifficulties();
     }
 
     private void handleProgressDifficulties() {
@@ -155,30 +135,18 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void newDortIslem() {
+    private void newIslem() {
         mTimer = new GameTimer(getTime(), 1);
         mProgressTimer.setMax(getTime());
         mProgressTimer.setProgress(getTime());
         mTimer.start();
 
-        AbstractDortIslemBuilder builder;
-        switch (mIslemSecici.nextInt(2)) {
-            case TOPLAMA:
-                builder = new ToplamaBuilder(); break;
-            case CIKARMA:
-                builder = new CikarmaBuilder(); break;
-            // TODO : diger islemler eklenecek
-            // TODO : veya sadece Freaking Division olabilir. Bölünen progressTimer'ın üstünde bölen altında olabilir. aşağıya da doğru yanlış yerine 4 tane ardışık sayı konur oyuncu doğru olanı seçer.
-            default:
-                builder = new ToplamaBuilder(); break;
-        }
+        mIslem = mIslemFactory.makeIslem(mDifficulty);
 
-        builder.setDifficulty(mDifficulty);
-        builder.setX();
-        builder.setY();
-        mIslem = builder.getDortIslem();
-
-        textViewIslem.setText(mIslem.toString());
+        textViewBolunen.setText(String.valueOf(mIslem.getX()));
+        YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolunen);
+        textViewBolen.setText(String.valueOf(mIslem.getY()));
+        YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolen);
     }
 
     private long getTime() {
@@ -189,10 +157,10 @@ public class MainActivity extends Activity {
                 sn = 1;
                 break;
             case Difficulty.MEDIUM:
-                sn = 1.5;
+                sn = 1.3;
                 break;
             case Difficulty.HARD:
-                sn = 2;
+                sn = 1.8;
                 break;
             case Difficulty.EXPERT:
                 sn = 2.5;
@@ -208,16 +176,51 @@ public class MainActivity extends Activity {
     }
 
     public void gameOver() {
-        mTimer.cancel();
-        // TODO: Oyun bitişini farklı yansıt. Bu geçici çözüm.
-        Toast.makeText(this, "Oyun bitti", Toast.LENGTH_SHORT).show();
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        // TODO: dialog tasarımı güzelleştirilecek
+        View dialoglayout = inflater.inflate(R.layout.game_over_dialog, null);
+        TypefaceHelper.typeface(dialoglayout);
+        TextView dialogScore = (TextView) dialoglayout.findViewById(R.id.dialogTextScore);
+        dialogScore.setText(String.valueOf(mScore));
+        dialogScore.setTextColor(mDifficulty.getColor());
+        FButton buttonPlay = (FButton) dialoglayout.findViewById(R.id.buttonPlayDialog);
+        FButton buttonIntro = (FButton) dialoglayout.findViewById(R.id.buttonIntroDialog);
+
+        // TODO: best değeri gösterebilmek için google play services ve SharedPreferences kullanılacak
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle("Oyun Bitti");
-        dialogBuilder.setMessage("Puanınız: " + mScore.getState());
-        dialogBuilder.setPositiveButton("OK", null);
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
+        dialogBuilder.setView(dialoglayout);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialogGameOver = dialogBuilder.create();
+
+        buttonPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogGameOver.cancel();
+                initBeginning();
+                newIslem();
+                mTimer.cancel();
+            }
+        });
+
+        buttonIntro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, IntroActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // If set, this activity will become the start of a new task on this history stack.
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK); // If set in an Intent passed to Context.startActivity(), this flag will cause any existing task that would be associated with the activity to be cleared before the activity is started.
+                dialogGameOver.cancel();
+                startActivity(intent);
+            }
+        });
+
+        // TODO: dialog gösteriminde oluşan hata düzeltilmeli
+        if (isGameOverDialogShown == false) {
+            dialogGameOver.show();
+            isGameOverDialogShown = true;
+        }
+
     }
 
     public class GameTimer extends CountDownTimer {
@@ -241,6 +244,62 @@ public class MainActivity extends Activity {
 
         @Override
         public void onFinish() {
+            //timer bittiğinde oyun biter
+            gameOver();
+        }
+    }
+
+    private class GameTimerr extends AsyncTask<Void, Long, Void> {
+
+        private long millisInFuture;
+        private long countDownInterval;
+
+        private GameTimerr(long millisInFuture, long countDownInterval) {
+            this.millisInFuture = millisInFuture;
+            this.countDownInterval = countDownInterval;
+        }
+
+        public void start() {
+            if (isCancelled()) {
+                this.execute();
+            }
+        }
+
+        public void cancel() {
+            this.cancel(true);
+        }
+
+        // A callback method executed on UI thread on starting the task
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        // A callback method executed on non UI thread, invoked after
+        // onPreExecute method if exists
+        @Override
+        protected Void doInBackground(Void... params) {
+            for(long i=millisInFuture;i>=0;i--){
+                try {
+                    Thread.sleep(countDownInterval);
+                    publishProgress(i); // Invokes onProgressUpdate()
+                } catch (InterruptedException e) {
+                }
+            }
+            return null;
+        }
+
+        // A callback method executed on UI thread, invoked by the publishProgress()
+        // from doInBackground() method
+        @Override
+        protected void onProgressUpdate(Long... values) {
+            // Burada, UI da timer bir şekilde ifade edilecek.
+            mProgressTimer.setProgress(Float.parseFloat(Integer.toString(values[0].intValue())));
+        }
+
+        // A callback method executed on UI thread, invoked after the completion of the task
+        @Override
+        protected void onPostExecute(Void result) {
             //timer bittiğinde oyun biter
             gameOver();
         }

@@ -7,7 +7,7 @@ import java.util.List;
  * Created by Semih Bozdemir on 4.3.2015.
  */
 public class Score {
-    private static final int TEST_MODE_EXTRA_SCORE = 80;
+    private static final int TEST_MODE_EXTRA_SCORE = 0;
 
     private int state; // score değeri
     private List<Observer> observers;
