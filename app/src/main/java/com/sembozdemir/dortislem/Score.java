@@ -54,8 +54,4 @@ public class Score {
         setState(getState() + difficulty.getLevel()*10 + TEST_MODE_EXTRA_SCORE);
     }
 
-    /*public void minus(Difficulty difficulty) {
-        // kafadan attım daha sonra kontrol et
-        setState(getState() - difficulty.getLevel()*50);
-    }*/
 }

@@ -13,9 +13,16 @@ public class Difficulty extends Observer {
     public static final int EXPERT = 4;
     public static final int GENIUS = 5;
 
+    public static final double SN_EASY = 1.1;
+    public static final double SN_MEDIUM = 1.4;
+    public static final double SN_HARD = 1.8;
+    public static final double SN_EXPERT = 2.2;
+    public static final double SN_GENIUS = 2.8;
+
     private int level;
     private int color;
     private Context context;
+    private long time;
 
     public Difficulty(int level) {
         this.level = level;
@@ -26,6 +33,7 @@ public class Difficulty extends Observer {
         level = EASY;
         this.context = context;
         color = context.getResources().getColor(R.color.easy_color);
+        time = (long) (SN_EASY*1000);
         this.score = score;
 
         // add as Observer automatically
@@ -54,19 +62,32 @@ public class Difficulty extends Observer {
         if (0 < score.getState() && score.getState() <= 100) {
             level = EASY;
             color = context.getResources().getColor(R.color.easy_color);
+            time = (long) (SN_EASY*1000);
         } else if (100 < score.getState() && score.getState() <= 1000) {
             level = MEDIUM;
             color = context.getResources().getColor(R.color.medium_color);
+            time = (long) (SN_MEDIUM*1000);
         } else if (1000 < score.getState() && score.getState() <= 5000) {
             level = HARD;
             color = context.getResources().getColor(R.color.hard_color);
+            time = (long) (SN_HARD*1000);
         } else if (5000 < score.getState() && score.getState() <= 15000) {
             level = EXPERT;
             color = context.getResources().getColor(R.color.expert_color);
+            time = (long) (SN_EXPERT*1000);
         } else if (15000 < score.getState()) {
             level = GENIUS;
             color = context.getResources().getColor(R.color.genius_color);
+            time = (long) (SN_GENIUS*1000);
         }
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public long getTime() {
+        return time;
     }
 
     @Override

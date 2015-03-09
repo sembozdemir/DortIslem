@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:fbutton="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -10,32 +11,74 @@
     android:background="@color/app_color"
     tools:context="com.sembozdemir.dortislem.IntroActivity">
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
+        android:layout_height="fill_parent"
+        android:weightSum="1">
 
         <RelativeLayout
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:paddingBottom="10dp"
-            android:layout_centerHorizontal="true">
+            android:layout_weight="0.30">
 
-            <info.hoang8f.widget.FButton
-                fbutton:buttonColor="@color/easy_color"
-                fbutton:cornerRadius="16dp"
-                fbutton:shadowEnabled="false"
-                android:textColor="@color/text_color"
-                android:drawableLeft="@drawable/ic_play"
-                android:paddingLeft="6dp"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_alignParentLeft="true"
-                android:id="@+id/buttonPlay" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:id="@+id/imageView"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.40">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
+
+                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                    android:id="@+id/progressCenter"
+                    android:layout_height="@dimen/progressBarHeight"
+                    android:layout_width="@dimen/progressBarWidth"
+                    app:backgroundColor="@color/spin_background_color"
+                    app:progressColor="@color/app_color"
+                    app:backgroundPadding="2dp"
+                    android:layout_centerHorizontal="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true">
+
+                <info.hoang8f.widget.FButton
+                    fbutton:buttonColor="@color/easy_color"
+                    fbutton:cornerRadius="16dp"
+                    fbutton:shadowEnabled="false"
+                    android:textColor="@color/text_color"
+                    android:drawableLeft="@drawable/ic_play"
+                    android:paddingLeft="6dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentLeft="true"
+                    android:id="@+id/buttonPlay" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
-    </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.30">
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

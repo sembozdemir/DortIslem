@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
+
+import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
+import com.squareup.picasso.Picasso;
 
 import info.hoang8f.widget.FButton;
 
@@ -11,6 +15,8 @@ import info.hoang8f.widget.FButton;
 public class IntroActivity extends Activity {
 
     protected FButton buttonPlay;
+    protected RoundCornerProgressBar progressBar;
+    protected ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +26,23 @@ public class IntroActivity extends Activity {
         // TODO: intro tasarımı yenilenecek
         // TODO: google play services eklenecek
 
+        // initialize view components
+        initViewComponents();
+
+    }
+
+    private void initViewComponents() {
         buttonPlay = (FButton) findViewById(R.id.buttonPlay);
+        progressBar = (RoundCornerProgressBar) findViewById(R.id.progressCenter);
+        imageView = (ImageView) findViewById(R.id.imageView);
+        Picasso.with(this)
+                .load(R.drawable.freakingdiv_logo)
+                .resize(425*2, 125*2)
+                .into(imageView);
+
+        // initiliaze 0 ProgressBar in the beginning
+        progressBar.setMax(100);
+        progressBar.setProgress(0);
 
         buttonPlay.setOnClickListener(new View.OnClickListener() {
             @Override

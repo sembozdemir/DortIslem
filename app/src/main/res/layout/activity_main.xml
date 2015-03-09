@@ -17,7 +17,8 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/headerLayout">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -89,6 +90,19 @@
                 android:textIsSelectable="true" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/headerLayout">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageViewVolume"
+                android:layout_alignParentLeft="true"/>
+        </RelativeLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,8 +117,8 @@
 
         <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
             android:id="@+id/progressTimer"
-            android:layout_height="8dp"
-            android:layout_width="320dp"
+            android:layout_height="@dimen/progressBarHeight"
+            android:layout_width="@dimen/progressBarWidth"
             android:layout_below="@+id/textViewBolunen"
             app:backgroundColor="@color/spin_background_color"
             app:progressColor="@color/app_color"

@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:textSize="@dimen/dialog_content_text_size"
+            android:textSize="@dimen/game_over_dialog_title_text_size"
             android:textColor="@color/text_color"
             android:text="@string/game_over" />
 
@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:textSize="@dimen/dialog_content_text_size"
+            android:textSize="@dimen/game_over_dialog_label_text_size"
             android:textColor="@color/text_color"
             android:text="@string/dialog_score_label" />
 
@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:textSize="@dimen/dialog_content_text_size"
+            android:textSize="@dimen/game_over_dialog_value_text_size"
             android:textColor="@color/text_color"
             android:text="0"
             android:id="@+id/dialogTextScore" />
@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:textSize="@dimen/dialog_content_text_size"
+            android:textSize="@dimen/game_over_dialog_label_text_size"
             android:textColor="@color/text_color"
             android:text="@string/dialog_best_label" />
 
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:textSize="@dimen/dialog_content_text_size"
+            android:textSize="@dimen/game_over_dialog_value_text_size"
             android:textColor="@color/text_color"
             android:text="0"
             android:id="@+id/dialogTextBest" />

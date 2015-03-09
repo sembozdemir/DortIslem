@@ -2,31 +2,43 @@ package com.sembozdemir.dortislem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.norbsoft.typefacehelper.TypefaceCollection;
 import com.norbsoft.typefacehelper.TypefaceHelper;
+import com.pixplicity.easyprefs.library.Prefs;
+import com.squareup.picasso.Picasso;
 
 import info.hoang8f.widget.FButton;
 
 
 public class MainActivity extends Activity {
 
+    private static final String PREFS_KEY_BEST = "Best";
+    private static final String PREFS_KEY_VIBRATION = "isVibrationOpen";
+    private static final String PREFS_KEY_VOLUME = "isVolumeOn";
+
     protected LinearLayout backgroundLayout;
     protected TextView textViewScore;
     protected TextView textViewBolunen;
     protected TextView textViewBolen;
+    protected ImageView imgVolume;
     protected FButton buttons[];
     protected BolmeIslemi mIslem;
     protected BolmeFactory mIslemFactory;
@@ -36,6 +48,9 @@ public class MainActivity extends Activity {
     protected RoundCornerProgressBar mProgressTimer;
     protected RoundCornerProgressBar mProgressDifficulties[];
     protected boolean isGameOverDialogShown;
+    protected int mBest;
+    protected Vibrator vibrator;
+    private MediaPlayer mp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +66,8 @@ public class MainActivity extends Activity {
 
         // initiliaze View component
         initViewComponents();
+        // initiliaze other things
+        initOthers();
         // initiliaze IslemFactory
         mIslemFactory = new BolmeFactory();
         // initiliaze beginning
@@ -59,12 +76,25 @@ public class MainActivity extends Activity {
         newIslem();
         mTimer.cancel();
 
+        // Set click listeners to the answer buttons
         for (int i = 0 ; i < buttons.length ; i++) {
             final int cevap = i + 2;
             buttons[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mIslem.isTrue(cevap)) {
+                        if (Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+                            mp = MediaPlayer.create(MainActivity.this, R.raw.right_answer);
+                            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                                @Override
+                                public void onCompletion(MediaPlayer mp) {
+                                    mp.release();
+                                }
+
+                            });
+                            mp.start();
+                        }
                         plusScore();
                         newIslem();
                     } else {
@@ -75,20 +105,49 @@ public class MainActivity extends Activity {
             });
         }
 
+        // Set click listener to the volume image
+        imgVolume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Boolean isVolumeOn = Prefs.getBoolean(PREFS_KEY_VOLUME, true);
+                Prefs.putBoolean(PREFS_KEY_VOLUME, !isVolumeOn);
+
+                if(Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_on).resize(200, 200).into(imgVolume);
+                } else {
+                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(200, 200).into(imgVolume);
+                }
+            }
+        });
+
+    }
+
+    private void initOthers() {
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        if(Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+            Picasso.with(this).load(R.drawable.ic_volume_on).resize(200, 200).into(imgVolume);
+        } else {
+            Picasso.with(this).load(R.drawable.ic_volume_mute).resize(200, 200).into(imgVolume);
+        }
+
     }
 
     private void initBeginning() {
+
         // Score is 0 in the beginning
         mScore = new Score(0);
         textViewScore.setText(mScore.toString());
 
         // Difficulty is EASY in the beginning
         mDifficulty = new Difficulty(mScore, this);
-        backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-        mProgressDifficulties[Difficulty.EASY].setProgress(1);
-        mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
+        handleLevelChanges();
+
+        // initiliaze Best Score
+        mBest = Prefs.getInt(PREFS_KEY_BEST, 0);
 
         isGameOverDialogShown = false;
+
     }
 
     private void initViewComponents() {
@@ -96,6 +155,7 @@ public class MainActivity extends Activity {
         textViewBolunen = (TextView) findViewById(R.id.textViewBolunen);
         textViewBolen = (TextView) findViewById(R.id.textViewBolen);
         textViewScore = (TextView) findViewById(R.id.textViewScore);
+        imgVolume = (ImageView) findViewById(R.id.imageViewVolume);
         mProgressTimer = (RoundCornerProgressBar) findViewById(R.id.progressTimer);
         mProgressDifficulties = new RoundCornerProgressBar[]{null,
                 (RoundCornerProgressBar) findViewById(R.id.progressEasy),
@@ -136,9 +196,9 @@ public class MainActivity extends Activity {
     }
 
     private void newIslem() {
-        mTimer = new GameTimer(getTime(), 1);
-        mProgressTimer.setMax(getTime());
-        mProgressTimer.setProgress(getTime());
+        mTimer = new GameTimer(mDifficulty.getTime(), 1);
+        mProgressTimer.setMax(mDifficulty.getTime());
+        mProgressTimer.setProgress(mDifficulty.getTime());
         mTimer.start();
 
         mIslem = mIslemFactory.makeIslem(mDifficulty);
@@ -149,45 +209,27 @@ public class MainActivity extends Activity {
         YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolen);
     }
 
-    private long getTime() {
-        double sn;
-
-        switch (mDifficulty.getLevel()) {
-            case Difficulty.EASY:
-                sn = 1;
-                break;
-            case Difficulty.MEDIUM:
-                sn = 1.3;
-                break;
-            case Difficulty.HARD:
-                sn = 1.8;
-                break;
-            case Difficulty.EXPERT:
-                sn = 2.5;
-                break;
-            case Difficulty.GENIUS:
-                sn = 3;
-                break;
-            default:
-                sn = 1;
-        }
-
-        return (long) (1000*sn);
-    }
-
     public void gameOver() {
 
+        if(Prefs.getBoolean(PREFS_KEY_VIBRATION, true)) {
+            vibrator.vibrate(100);
+        }
+
         LayoutInflater inflater = LayoutInflater.from(this);
-        // TODO: dialog tasarımı güzelleştirilecek
         View dialoglayout = inflater.inflate(R.layout.game_over_dialog, null);
         TypefaceHelper.typeface(dialoglayout);
         TextView dialogScore = (TextView) dialoglayout.findViewById(R.id.dialogTextScore);
-        dialogScore.setText(String.valueOf(mScore));
-        dialogScore.setTextColor(mDifficulty.getColor());
+        dialogScore.setText(String.valueOf(mScore.getState()));
+        TextView dialogBest = (TextView) dialoglayout.findViewById(R.id.dialogTextBest);
+        if (isHighScore()) {
+            mBest = mScore.getState();
+            dialogBest.setTextColor(getResources().getColor(R.color.hard_color));
+            Toast.makeText(this, "You have new High Score: " + mBest, Toast.LENGTH_LONG).show();
+            Prefs.putInt(PREFS_KEY_BEST, mBest);
+        }
+        dialogBest.setText(String.valueOf(mBest));
         FButton buttonPlay = (FButton) dialoglayout.findViewById(R.id.buttonPlayDialog);
         FButton buttonIntro = (FButton) dialoglayout.findViewById(R.id.buttonIntroDialog);
-
-        // TODO: best değeri gösterebilmek için google play services ve SharedPreferences kullanılacak
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setView(dialoglayout);
@@ -223,6 +265,10 @@ public class MainActivity extends Activity {
 
     }
 
+    private boolean isHighScore() {
+        return mScore.getState() > mBest;
+    }
+
     public class GameTimer extends CountDownTimer {
 
         /**
@@ -249,6 +295,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Dialogdaki hatayı gidermek için alternatif timer sınıfı yazmaya çalıştım ama şuan çalışmıyor.
     private class GameTimerr extends AsyncTask<Void, Long, Void> {
 
         private long millisInFuture;
@@ -304,29 +351,4 @@ public class MainActivity extends Activity {
             gameOver();
         }
     }
-
-
-
-
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
 }
