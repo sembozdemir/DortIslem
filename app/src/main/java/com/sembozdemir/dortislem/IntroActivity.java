@@ -7,13 +7,13 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.pixplicity.easyprefs.library.Prefs;
 import com.squareup.picasso.Picasso;
 
 import info.hoang8f.widget.FButton;
@@ -26,6 +26,7 @@ public class IntroActivity extends Activity implements
     private static final String TAG = IntroActivity.class.getSimpleName();
     private static final int REQUEST_ACHIEVEMENTS = 0;
     private static final int REQUEST_LEADERBOARD = 0;
+    private static final String PREFS_KEY_CONNECT_FAIL = "isConnectFail";
     private static int RC_SIGN_IN = 9001;
 
     private boolean mResolvingConnectionFailure = false;
@@ -45,8 +46,6 @@ public class IntroActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        // TODO: intro tasarımı yenilenecek
-        // TODO: google play services eklenecek
         // Create the Google Api Client with access to the Play Game services
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -95,8 +94,7 @@ public class IntroActivity extends Activity implements
                     // signed in. Show the "sign out" button and explanation.
                     startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient), REQUEST_ACHIEVEMENTS);
                 } else {
-                    // not signed in. Show the "sign in" button and explanation.
-                    Toast.makeText(IntroActivity.this, "You have to sign in first", Toast.LENGTH_LONG).show();
+                    signInClicked();
                 }
             }
         });
@@ -109,7 +107,7 @@ public class IntroActivity extends Activity implements
                     startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient, getString(R.string.leaderboard_id)), REQUEST_LEADERBOARD);
                 } else {
                     // not signed in. Show the "sign in" button and explanation.
-                    Toast.makeText(IntroActivity.this, "You have to sign in first", Toast.LENGTH_LONG).show();
+                    signInClicked();
                 }
             }
         });
@@ -118,7 +116,12 @@ public class IntroActivity extends Activity implements
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        // oyuncu game servicese bağlanmak istediyse
+        if (!Prefs.getBoolean(PREFS_KEY_CONNECT_FAIL, false)) {
+            mGoogleApiClient.connect();
+            Log.d(TAG, "onStart() is called");
+        }
+
     }
 
     @Override
@@ -132,6 +135,7 @@ public class IntroActivity extends Activity implements
     public void onConnected(Bundle bundle) {
         // The player is signed in. Hide the sign-in button and allow the
         // player to proceed.
+        Prefs.putBoolean(PREFS_KEY_CONNECT_FAIL, false);
         Log.d(TAG, "Connection : ok");
     }
 
@@ -184,6 +188,8 @@ public class IntroActivity extends Activity implements
                 // failed. The R.string.signin_failure should reference an error
                 // string in your strings.xml file that tells the user they
                 // could not be signed in, such as "Unable to sign in."
+                // Oyuncu iptal'e tıklayıp bağlanmak istemedi ve connection fail etti.
+                Prefs.putBoolean(PREFS_KEY_CONNECT_FAIL, true);
                 BaseGameUtils.showActivityResultError(this,
                         requestCode, resultCode, R.string.signin_failure);
             }

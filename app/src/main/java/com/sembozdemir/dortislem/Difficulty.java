@@ -79,27 +79,38 @@ public class Difficulty extends Observer {
             level = EASY;
             color = context.getResources().getColor(R.color.easy_color);
             time = (long) (SN_EASY*1000);
-            Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_beginner_id));
+            if (googleApiClient.isConnected()) {
+                Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_beginner_id));
+            }
         } else if (100 < score.getState() && score.getState() <= 1000) {
             level = MEDIUM;
             color = context.getResources().getColor(R.color.medium_color);
             time = (long) (SN_MEDIUM*1000);
-            Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_amatuer_id));
+            if (googleApiClient.isConnected()) {
+                Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_amatuer_id));
+            }
         } else if (1000 < score.getState() && score.getState() <= 5000) {
             level = HARD;
             color = context.getResources().getColor(R.color.hard_color);
             time = (long) (SN_HARD*1000);
-            Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_hardplayer_id));
+            if (googleApiClient.isConnected()) {
+                Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_hardplayer_id));
+            }
         } else if (5000 < score.getState() && score.getState() <= 15000) {
             level = EXPERT;
             color = context.getResources().getColor(R.color.expert_color);
             time = (long) (SN_EXPERT*1000);
-            Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_expert_id));
+            if (googleApiClient.isConnected()) {
+                Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_expert_id));
+            }
         } else if (15000 < score.getState()) {
             level = GENIUS;
             color = context.getResources().getColor(R.color.genius_color);
             time = (long) (SN_GENIUS*1000);
-            Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_genius_id));
+            if (googleApiClient.isConnected()) {
+                Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_genius_id));
+                //Games.Achievements.increment(googleApiClient, context.getString(R.string.achievement_einstein_id), 1);
+            }
             // TODO: Einstein badge i için incrementler ve diğer işlemler burada yapılacak
         }
     }

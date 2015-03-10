@@ -42,6 +42,7 @@ public class MainActivity extends Activity implements
     private static final String PREFS_KEY_VIBRATION = "isVibrationOpen";
     private static final String PREFS_KEY_VOLUME = "isVolumeOn";
     private static final String PREFS_KEY_FIRST_TIME = "isFirstTime";
+    private static final String PREFS_KEY_CONNECT_FAIL = "isConnectFail";
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static int RC_SIGN_IN = 9001;
@@ -256,8 +257,10 @@ public class MainActivity extends Activity implements
             dialogBest.setTextColor(getResources().getColor(R.color.hard_color));
             Toast.makeText(this, "You have new High Score: " + mBest, Toast.LENGTH_LONG).show();
             Prefs.putInt(PREFS_KEY_BEST, mBest);
-            // Submit score to the leaderboard in Google Play Game Services
-            Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_id), 1337);
+            if (mGoogleApiClient.isConnected()) {
+                // Submit score to the leaderboard in Google Play Game Services
+                Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_id), 1337);
+            }
         }
         dialogBest.setText(String.valueOf(mBest));
         FButton buttonPlay = (FButton) dialoglayout.findViewById(R.id.buttonPlayDialog);
@@ -304,13 +307,20 @@ public class MainActivity extends Activity implements
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        // oyuncu game servicese bağlanmak istediyse
+        if (!Prefs.getBoolean(PREFS_KEY_CONNECT_FAIL, true)) {
+            mGoogleApiClient.connect();
+            Log.d(TAG, "onStart() is called");
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mGoogleApiClient.disconnect();
+        if(mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+
         Log.d(TAG, "onStop() is called");
     }
 
