@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':BaseGameUtils')
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.akexorcist:RoundCornerProgressBar:1.0.0'
     compile 'com.nineoldandroids:library:2.4.0'
@@ -34,4 +35,5 @@ dependencies {
     compile 'com.norbsoft.typefacehelper:library:0.9.0'
     compile 'com.squareup.picasso:picasso:2.5.0'
     compile 'com.pixplicity.easyprefs:library:1.4'
+    compile 'com.google.android.gms:play-services:6.5.87'
 }

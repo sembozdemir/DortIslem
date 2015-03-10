@@ -103,7 +103,7 @@
                     android:paddingLeft="5dp"
                     android:layout_width="75dp"
                     android:layout_height="75dp"
-                    android:id="@+id/buttonLeaderboards" />
+                    android:id="@+id/buttonLeaderboard" />
 
             </LinearLayout>
 
