@@ -7,7 +7,7 @@
     <string name="level_hard">HARD</string>
     <string name="level_expert">EXPERT</string>
     <string name="level_genius">GENIUS</string>
-    <string name="font_path">fonts/Lora-Bold.ttf</string>
+    <string name="font_path">fonts/Schoolbell.ttf</string>
     <string name="dialog_score_label">Score</string>
     <string name="dialog_best_label">Best</string>
     <string name="game_over">Game Over</string>

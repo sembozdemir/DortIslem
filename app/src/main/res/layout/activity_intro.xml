@@ -20,12 +20,11 @@
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.30">
+            android:layout_weight="0.20">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
                 android:id="@+id/imageView"
                 android:layout_centerHorizontal="true" />
         </RelativeLayout>
@@ -33,12 +32,33 @@
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.40">
+            android:layout_weight="0.50">
 
             <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@+id/centerDivider">
+
+                <info.hoang8f.widget.FButton
+                    fbutton:buttonColor="@color/easy_color"
+                    fbutton:cornerRadius="16dp"
+                    fbutton:shadowEnabled="false"
+                    android:textColor="@color/text_color"
+                    android:drawableLeft="@drawable/ic_play"
+                    android:paddingLeft="6dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:id="@+id/buttonPlay" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:padding="20dp"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true">
+                android:layout_centerInParent="true"
+                android:id="@+id/centerDivider">
 
                 <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
                     android:id="@+id/progressCenter"
@@ -51,24 +71,41 @@
 
             </RelativeLayout>
 
-            <RelativeLayout
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true">
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/centerDivider">
 
                 <info.hoang8f.widget.FButton
-                    fbutton:buttonColor="@color/easy_color"
+                    fbutton:buttonColor="@color/hard_color"
                     fbutton:cornerRadius="16dp"
                     fbutton:shadowEnabled="false"
                     android:textColor="@color/text_color"
-                    android:drawableLeft="@drawable/ic_play"
-                    android:paddingLeft="6dp"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_alignParentLeft="true"
-                    android:id="@+id/buttonPlay" />
+                    android:drawableLeft="@drawable/ic_games_achievements"
+                    android:paddingLeft="5dp"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:id="@+id/buttonAchievements" />
 
-            </RelativeLayout>
+                <View
+                    android:layout_width="25dp"
+                    android:layout_height="match_parent"
+                    />
+
+                <info.hoang8f.widget.FButton
+                    fbutton:buttonColor="@color/genius_color"
+                    fbutton:cornerRadius="16dp"
+                    fbutton:shadowEnabled="false"
+                    android:textColor="@color/text_color"
+                    android:drawableLeft="@drawable/ic_games_leaderboards"
+                    android:paddingLeft="5dp"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:id="@+id/buttonLeaderboards" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 

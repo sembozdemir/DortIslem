@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -112,10 +113,12 @@ public class MainActivity extends Activity {
                 Boolean isVolumeOn = Prefs.getBoolean(PREFS_KEY_VOLUME, true);
                 Prefs.putBoolean(PREFS_KEY_VOLUME, !isVolumeOn);
 
+                final int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
+
                 if(Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
-                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_on).resize(200, 200).into(imgVolume);
+                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_on).resize(px, px).centerCrop().into(imgVolume);
                 } else {
-                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(200, 200).into(imgVolume);
+                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(px, px).centerCrop().into(imgVolume);
                 }
             }
         });
@@ -125,10 +128,12 @@ public class MainActivity extends Activity {
     private void initOthers() {
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        final int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
+
         if(Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
-            Picasso.with(this).load(R.drawable.ic_volume_on).resize(200, 200).into(imgVolume);
+            Picasso.with(MainActivity.this).load(R.drawable.ic_volume_on).resize(px, px).centerCrop().into(imgVolume);
         } else {
-            Picasso.with(this).load(R.drawable.ic_volume_mute).resize(200, 200).into(imgVolume);
+            Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(px, px).centerCrop().into(imgVolume);
         }
 
     }
@@ -204,8 +209,8 @@ public class MainActivity extends Activity {
         mIslem = mIslemFactory.makeIslem(mDifficulty);
 
         textViewBolunen.setText(String.valueOf(mIslem.getX()));
-        YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolunen);
         textViewBolen.setText(String.valueOf(mIslem.getY()));
+        YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolunen);
         YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolen);
     }
 

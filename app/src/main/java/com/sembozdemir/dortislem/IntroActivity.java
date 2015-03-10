@@ -3,6 +3,7 @@ package com.sembozdemir.dortislem;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -35,9 +36,13 @@ public class IntroActivity extends Activity {
         buttonPlay = (FButton) findViewById(R.id.buttonPlay);
         progressBar = (RoundCornerProgressBar) findViewById(R.id.progressCenter);
         imageView = (ImageView) findViewById(R.id.imageView);
+
+        final int px_w = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
+        final int px_h = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 125, getResources().getDisplayMetrics());
         Picasso.with(this)
                 .load(R.drawable.freakingdiv_logo)
-                .resize(425*2, 125*2)
+                .resize(px_w, px_h)
+                .centerCrop()
                 .into(imageView);
 
         // initiliaze 0 ProgressBar in the beginning
