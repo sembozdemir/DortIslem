@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -14,7 +13,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.pixplicity.easyprefs.library.Prefs;
-import com.squareup.picasso.Picasso;
 
 import info.hoang8f.widget.FButton;
 
@@ -27,6 +25,7 @@ public class IntroActivity extends Activity implements
     private static final int REQUEST_ACHIEVEMENTS = 0;
     private static final int REQUEST_LEADERBOARD = 0;
     private static final String PREFS_KEY_CONNECT_FAIL = "isConnectFail";
+    private static final String PREFS_KEY_BEST = "Best";
     private static int RC_SIGN_IN = 9001;
 
     private boolean mResolvingConnectionFailure = false;
@@ -67,13 +66,15 @@ public class IntroActivity extends Activity implements
         imageView = (ImageView) findViewById(R.id.imageView);
 
         // Logo gösterimi
-        final int px_w = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
+        /*final int px_w = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
         final int px_h = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 125, getResources().getDisplayMetrics());
         Picasso.with(this)
                 .load(R.drawable.freakingdiv_logo)
                 .resize(px_w, px_h)
                 .centerCrop()
-                .into(imageView);
+                .into(imageView);*/
+
+
 
         // initiliaze 0 ProgressBar in the beginning
         progressBar.setMax(100);
@@ -114,14 +115,29 @@ public class IntroActivity extends Activity implements
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // initiliaze AdMob View
+        /*AdView adView = (AdView) this.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("730A5BC6F75277B16C997FF87D646F9D").build();
+        adView.loadAd(adRequest);*/
+        AdPresenter.init()
+                .addTestDevice("730A5BC6F75277B16C997FF87D646F9D")
+                .loadWith(findViewById(R.id.adView))
+                .hideEveryOddSec();
+
+
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
+
         // oyuncu game servicese bağlanmak istediyse
         if (!Prefs.getBoolean(PREFS_KEY_CONNECT_FAIL, false)) {
             mGoogleApiClient.connect();
             Log.d(TAG, "onStart() is called");
         }
-
     }
 
     @Override
@@ -135,6 +151,10 @@ public class IntroActivity extends Activity implements
     public void onConnected(Bundle bundle) {
         // The player is signed in. Hide the sign-in button and allow the
         // player to proceed.
+        int best = Prefs.getInt(PREFS_KEY_BEST, 0);
+        // Submit score to the leaderboard in Google Play Game Services
+        Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_id), best);
+
         Prefs.putBoolean(PREFS_KEY_CONNECT_FAIL, false);
         Log.d(TAG, "Connection : ok");
     }

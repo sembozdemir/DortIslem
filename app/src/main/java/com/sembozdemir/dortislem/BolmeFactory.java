@@ -62,16 +62,16 @@ public class BolmeFactory {
 
         switch (difficulty.getLevel()) {
             case Difficulty.EASY:
-                n = random.nextInt(2) + 2; break; // Bolen 2-3 arasında
+                n = random.nextInt(3) + 1; break; // Bolen 1-3 arasında
             case Difficulty.MEDIUM:
-                n = random.nextInt(4) + 3; break; // 3-6
+                n = random.nextInt(4) + 4; break; // 4-7
             case Difficulty.HARD:
-                n = random.nextInt(14) + 6; break; // 6-19
+                n = random.nextInt(12) + 8; break; // 8-19
             case Difficulty.EXPERT:
-                n = random.nextInt(90) + 10; break; // 20-99
+                n = random.nextInt(80) + 20; break; // 20-99
             case Difficulty.GENIUS:
                 n = random.nextInt(900) + 99; break; // 99-999
-            default: n = 0;
+            default: n = 1;
         }
 
         return n;

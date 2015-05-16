@@ -31,50 +31,50 @@
                     android:layout_height="@dimen/progressbar_difficulty_height"
                     android:layout_width="@dimen/progressbar_difficulty_width_genius"
                     android:padding="@dimen/progressbar_padding"
-                    app:backgroundColor="@color/spin_background_color"
-                    app:progressColor="@color/genius_color"
-                    app:backgroundPadding="@dimen/progressbar_background_padding"
-                    app:max="1"/>
+                    app:rcBackgroundColor="@color/spin_background_color"
+                    app:rcProgressColor="@color/genius_color"
+                    app:rcBackgroundPadding="@dimen/progressbar_background_padding"
+                    app:rcMax="1"/>
 
                 <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
                     android:id="@+id/progressExpert"
                     android:layout_height="@dimen/progressbar_difficulty_height"
                     android:layout_width="@dimen/progressbar_difficulty_width_expert"
                     android:padding="@dimen/progressbar_padding"
-                    app:backgroundColor="@color/spin_background_color"
-                    app:progressColor="@color/expert_color"
-                    app:backgroundPadding="@dimen/progressbar_background_padding"
-                    app:max="1"/>
+                    app:rcBackgroundColor="@color/spin_background_color"
+                    app:rcProgressColor="@color/expert_color"
+                    app:rcBackgroundPadding="@dimen/progressbar_background_padding"
+                    app:rcMax="1"/>
 
                 <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
                     android:id="@+id/progressHard"
                     android:layout_height="@dimen/progressbar_difficulty_height"
                     android:layout_width="@dimen/progressbar_difficulty_width_hard"
                     android:padding="@dimen/progressbar_padding"
-                    app:backgroundColor="@color/spin_background_color"
-                    app:progressColor="@color/hard_color"
-                    app:backgroundPadding="@dimen/progressbar_background_padding"
-                    app:max="1"/>
+                    app:rcBackgroundColor="@color/spin_background_color"
+                    app:rcProgressColor="@color/hard_color"
+                    app:rcBackgroundPadding="@dimen/progressbar_background_padding"
+                    app:rcMax="1"/>
 
                 <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
                     android:id="@+id/progressMedium"
                     android:layout_height="@dimen/progressbar_difficulty_height"
                     android:layout_width="@dimen/progressbar_difficulty_width_medium"
                     android:padding="@dimen/progressbar_padding"
-                    app:backgroundColor="@color/spin_background_color"
-                    app:progressColor="@color/medium_color"
-                    app:backgroundPadding="@dimen/progressbar_background_padding"
-                    app:max="1"/>
+                    app:rcBackgroundColor="@color/spin_background_color"
+                    app:rcProgressColor="@color/medium_color"
+                    app:rcBackgroundPadding="@dimen/progressbar_background_padding"
+                    app:rcMax="1"/>
 
                 <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
                     android:id="@+id/progressEasy"
                     android:layout_height="@dimen/progressbar_difficulty_height"
                     android:layout_width="@dimen/progressbar_difficulty_width_easy"
                     android:padding="@dimen/progressbar_padding"
-                    app:backgroundColor="@color/spin_background_color"
-                    app:progressColor="@color/easy_color"
-                    app:backgroundPadding="@dimen/progressbar_background_padding"
-                    app:max="1"/>
+                    app:rcBackgroundColor="@color/spin_background_color"
+                    app:rcProgressColor="@color/easy_color"
+                    app:rcBackgroundPadding="@dimen/progressbar_background_padding"
+                    app:rcMax="1"/>
             </LinearLayout>
 
             <TextView
@@ -118,9 +118,9 @@
             android:layout_height="@dimen/progressBarHeight"
             android:layout_width="@dimen/progressBarWidth"
             android:layout_below="@+id/textViewBolunen"
-            app:backgroundColor="@color/spin_background_color"
-            app:progressColor="@color/app_color"
-            app:backgroundPadding="2dp"
+            app:rcBackgroundColor="@color/app_color"
+            app:rcProgressColor="@color/spin_background_color"
+            app:rcBackgroundPadding="0dp"
             android:layout_centerHorizontal="true" />
 
         <TextView

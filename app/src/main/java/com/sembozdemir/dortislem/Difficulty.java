@@ -16,7 +16,7 @@ public class Difficulty extends Observer {
     public static final int EXPERT = 4;
     public static final int GENIUS = 5;
 
-    public static final double SN_EASY = 1.1;
+    public static final double SN_EASY = 1.2;
     public static final double SN_MEDIUM = 1.4;
     public static final double SN_HARD = 1.8;
     public static final double SN_EXPERT = 2.2;
@@ -71,18 +71,18 @@ public class Difficulty extends Observer {
     @Override
     public void update() {
         // TODO: zorluk skalasını gözden geçir
-        if (0 < score.getState() && score.getState() <= 80) {
+        if (0 < score.getState() && score.getState() <= 50) {
             level = EASY;
             color = context.getResources().getColor(R.color.easy_color);
             time = (long) (SN_EASY*1000);
-        } else if(80 < score.getState() && score.getState() <= 100){
+        } else if(50 < score.getState() && score.getState() <= 120){
             level = EASY;
             color = context.getResources().getColor(R.color.easy_color);
             time = (long) (SN_EASY*1000);
             if (googleApiClient.isConnected()) {
                 Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_beginner_id));
             }
-        } else if (100 < score.getState() && score.getState() <= 1000) {
+        } else if (120 < score.getState() && score.getState() <= 1000) {
             level = MEDIUM;
             color = context.getResources().getColor(R.color.medium_color);
             time = (long) (SN_MEDIUM*1000);
@@ -96,14 +96,14 @@ public class Difficulty extends Observer {
             if (googleApiClient.isConnected()) {
                 Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_hardplayer_id));
             }
-        } else if (5000 < score.getState() && score.getState() <= 15000) {
+        } else if (5000 < score.getState() && score.getState() <= 20000) {
             level = EXPERT;
             color = context.getResources().getColor(R.color.expert_color);
             time = (long) (SN_EXPERT*1000);
             if (googleApiClient.isConnected()) {
                 Games.Achievements.unlock(googleApiClient, context.getString(R.string.achievement_expert_id));
             }
-        } else if (15000 < score.getState()) {
+        } else if (20000 < score.getState()) {
             level = GENIUS;
             color = context.getResources().getColor(R.color.genius_color);
             time = (long) (SN_GENIUS*1000);

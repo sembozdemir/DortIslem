@@ -51,7 +51,7 @@ public class Score {
     }
 
     public void plus(Difficulty difficulty) {
-        setState(getState() + difficulty.getLevel()*10 + TEST_MODE_EXTRA_SCORE);
+        setState(getState() + difficulty.getLevel()*difficulty.getLevel()*10 + TEST_MODE_EXTRA_SCORE);
     }
 
 }

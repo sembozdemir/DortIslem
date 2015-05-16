@@ -69,6 +69,8 @@ public class MainActivity extends Activity implements
     protected int mBest;
     protected Vibrator vibrator;
     private MediaPlayer mp;
+    private InterstitialAdPresenter myInterstitialAd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,22 +111,12 @@ public class MainActivity extends Activity implements
                 @Override
                 public void onClick(View v) {
                     if (mIslem.isTrue(cevap)) {
-                        if (Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
-                            mp = MediaPlayer.create(MainActivity.this, R.raw.right_answer);
-                            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-                                @Override
-                                public void onCompletion(MediaPlayer mp) {
-                                    mp.release();
-                                }
-
-                            });
-                            mp.start();
-                        }
+                        playSound(R.raw.right_answer);
                         plusScore();
                         newIslem();
                     } else {
                         mTimer.cancel();
+
                         gameOver();
                     }
                 }
@@ -150,6 +142,21 @@ public class MainActivity extends Activity implements
 
     }
 
+    private void playSound(int resId) {
+        if (Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+            mp = MediaPlayer.create(this, resId);
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                }
+
+            });
+            mp.start();
+        }
+    }
+
     private void initOthers() {
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -161,6 +168,11 @@ public class MainActivity extends Activity implements
             Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(px, px).centerCrop().into(imgVolume);
         }
 
+        // Initiliaze AdMob Interstitial Ad
+        myInterstitialAd = InterstitialAdPresenter.init(MainActivity.this)
+                .setAdUnitId(getString(R.string.interstitial_ad_unit_id))
+                .addTestDevice("730A5BC6F75277B16C997FF87D646F9D")
+                .load();
     }
 
     private void initBeginning() {
@@ -210,7 +222,6 @@ public class MainActivity extends Activity implements
     }
 
     private void handleLevelChanges() {
-        mProgressTimer.setProgressColor(mDifficulty.getColor());
         backgroundLayout.setBackgroundColor(mDifficulty.getColor());
         handleProgressDifficulties();
     }
@@ -234,10 +245,11 @@ public class MainActivity extends Activity implements
 
         mIslem = mIslemFactory.makeIslem(mDifficulty);
 
-        textViewBolunen.setText(String.valueOf(mIslem.getX()));
-        textViewBolen.setText(String.valueOf(mIslem.getY()));
         YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolunen);
         YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolen);
+
+        textViewBolunen.setText(String.valueOf(mIslem.getX()));
+        textViewBolen.setText(String.valueOf(mIslem.getY()));
     }
 
     public void gameOver() {
@@ -245,6 +257,8 @@ public class MainActivity extends Activity implements
         if(Prefs.getBoolean(PREFS_KEY_VIBRATION, true)) {
             vibrator.vibrate(100);
         }
+
+        // TODO: playSound(R.raw.wrong_answer);
 
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialoglayout = inflater.inflate(R.layout.game_over_dialog, null);
@@ -255,11 +269,11 @@ public class MainActivity extends Activity implements
         if (isHighScore()) {
             mBest = mScore.getState();
             dialogBest.setTextColor(getResources().getColor(R.color.hard_color));
-            Toast.makeText(this, "You have new High Score: " + mBest, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "You have new Best Score: " + mBest, Toast.LENGTH_LONG).show();
             Prefs.putInt(PREFS_KEY_BEST, mBest);
             if (mGoogleApiClient.isConnected()) {
                 // Submit score to the leaderboard in Google Play Game Services
-                Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_id), 1337);
+                Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_id), mBest);
             }
         }
         dialogBest.setText(String.valueOf(mBest));
@@ -275,6 +289,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onClick(View v) {
                 dialogGameOver.cancel();
+                myInterstitialAd.displayEverySec(10);
                 initBeginning();
                 newIslem();
                 mTimer.cancel();
@@ -326,11 +341,10 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onConnected(Bundle bundle) {
-        // The player is signed in. Hide the sign-in button and allow the
-        // player to proceed.
         // is it First Time playing?
         if (Prefs.getBoolean(PREFS_KEY_FIRST_TIME, true)) {
             Prefs.putBoolean(PREFS_KEY_FIRST_TIME, false);
+            Log.d(TAG, "FIRST TIME -> FALSE yapıldı");
             // it is first time playing, so unlock 'Abacus' badge
             Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_abacus_id));
         }
@@ -389,6 +403,7 @@ public class MainActivity extends Activity implements
                 // could not be signed in, such as "Unable to sign in."
                 BaseGameUtils.showActivityResultError(this,
                         requestCode, resultCode, R.string.signin_failure);
+
             }
         }
     }
