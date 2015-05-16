@@ -5,16 +5,9 @@
     <color name="hard_color">#D26A4F</color>
     <color name="expert_color">#A31DA0</color>
     <color name="genius_color">#8C0A52</color>
+    <color name="einstein_color">#520730</color>
     <color name="text_color">#FFFFFF</color>
-    <color name="spin_color">#888888</color>
     <color name="spin_background_color">#FFFFFF</color>
+    <color name="app_color">#6C7A89</color>
 
-    <array name="color_levels">
-        <item>null</item>
-        <item>@color/easy_color</item>
-        <item>@color/medium_color</item>
-        <item>@color/hard_color</item>
-        <item>@color/expert_color</item>
-        <item>@color/genius_color</item>
-    </array>
 </resources>

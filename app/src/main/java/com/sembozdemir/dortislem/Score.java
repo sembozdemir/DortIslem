@@ -7,7 +7,7 @@ import java.util.List;
  * Created by Semih Bozdemir on 4.3.2015.
  */
 public class Score {
-    private static final int TEST_MODE_EXTRA_SCORE = 80;
+    private static final int TEST_MODE_EXTRA_SCORE = 0;
 
     private int state; // score değeri
     private List<Observer> observers;
@@ -51,11 +51,7 @@ public class Score {
     }
 
     public void plus(Difficulty difficulty) {
-        setState(getState() + difficulty.getLevel()*10 + TEST_MODE_EXTRA_SCORE);
+        setState(getState() + difficulty.getLevel()*difficulty.getLevel()*10 + TEST_MODE_EXTRA_SCORE);
     }
 
-    /*public void minus(Difficulty difficulty) {
-        // kafadan attım daha sonra kontrol et
-        setState(getState() - difficulty.getLevel()*50);
-    }*/
 }

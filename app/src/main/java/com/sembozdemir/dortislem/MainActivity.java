@@ -2,10 +2,19 @@ package com.sembozdemir.dortislem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,39 +22,183 @@ import android.widget.Toast;
 import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
+import com.google.example.games.basegameutils.BaseGameUtils;
+import com.norbsoft.typefacehelper.TypefaceCollection;
+import com.norbsoft.typefacehelper.TypefaceHelper;
+import com.pixplicity.easyprefs.library.Prefs;
+import com.squareup.picasso.Picasso;
 
-import java.util.Random;
+import info.hoang8f.widget.FButton;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int TOPLAMA = 0;
-    private static final int CIKARMA = 1;
+    private static final String PREFS_KEY_BEST = "Best";
+    private static final String PREFS_KEY_VIBRATION = "isVibrationOpen";
+    private static final String PREFS_KEY_VOLUME = "isVolumeOn";
+    private static final String PREFS_KEY_FIRST_TIME = "isFirstTime";
+    private static final String PREFS_KEY_CONNECT_FAIL = "isConnectFail";
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static int RC_SIGN_IN = 9001;
+    private GoogleApiClient mGoogleApiClient;
+
+    private boolean mResolvingConnectionFailure = false;
+    private boolean mAutoStartSignInFlow = true;
+    private boolean mSignInClicked = false;
 
     protected LinearLayout backgroundLayout;
-    protected Button buttonTrue;
-    protected Button buttonFalse;
-    protected TextView textViewIslem;
     protected TextView textViewScore;
-    protected AbstractDortIslem mIslem;
+    protected TextView textViewBolunen;
+    protected TextView textViewBolen;
+    protected ImageView imgVolume;
+    protected FButton buttons[];
+    protected BolmeIslemi mIslem;
+    protected BolmeFactory mIslemFactory;
     protected Score mScore;
-    protected Random mIslemSecici;
     protected Difficulty mDifficulty;
     protected GameTimer mTimer;
     protected RoundCornerProgressBar mProgressTimer;
     protected RoundCornerProgressBar mProgressDifficulties[];
+    protected boolean isGameOverDialogShown;
+    protected int mBest;
+    protected Vibrator vibrator;
+    private MediaPlayer mp;
+    private InterstitialAdPresenter myInterstitialAd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Initialize typeface helper
+        TypefaceCollection typeface = new TypefaceCollection.Builder()
+                .set(Typeface.BOLD, Typeface.createFromAsset(getAssets(), getString(R.string.font_path)))
+                .create();
+        TypefaceHelper.init(typeface);
         setContentView(R.layout.activity_main);
+        // Apply custom typefaces!
+        TypefaceHelper.typeface(this);
+
+        // Create the Google Api Client with access to the Play Game services
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                        // add other APIs and scopes here as needed
+                .build();
 
         // initiliaze View component
+        initViewComponents();
+        // initiliaze other things
+        initOthers();
+        // initiliaze IslemFactory
+        mIslemFactory = new BolmeFactory();
+        // initiliaze beginning
+        initBeginning();
+
+        newIslem();
+        mTimer.cancel();
+
+        // Set click listeners to the answer buttons
+        for (int i = 0 ; i < buttons.length ; i++) {
+            final int cevap = i + 2;
+            buttons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mIslem.isTrue(cevap)) {
+                        playSound(R.raw.right_answer);
+                        plusScore();
+                        newIslem();
+                    } else {
+                        mTimer.cancel();
+
+                        gameOver();
+                    }
+                }
+            });
+        }
+
+        // Set click listener to the volume image
+        imgVolume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Boolean isVolumeOn = Prefs.getBoolean(PREFS_KEY_VOLUME, true);
+                Prefs.putBoolean(PREFS_KEY_VOLUME, !isVolumeOn);
+
+                final int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
+
+                if(Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_on).resize(px, px).centerCrop().into(imgVolume);
+                } else {
+                    Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(px, px).centerCrop().into(imgVolume);
+                }
+            }
+        });
+
+    }
+
+    private void playSound(int resId) {
+        if (Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+            mp = MediaPlayer.create(this, resId);
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                }
+
+            });
+            mp.start();
+        }
+    }
+
+    private void initOthers() {
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        final int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
+
+        if(Prefs.getBoolean(PREFS_KEY_VOLUME, true)) {
+            Picasso.with(MainActivity.this).load(R.drawable.ic_volume_on).resize(px, px).centerCrop().into(imgVolume);
+        } else {
+            Picasso.with(MainActivity.this).load(R.drawable.ic_volume_mute).resize(px, px).centerCrop().into(imgVolume);
+        }
+
+        // Initiliaze AdMob Interstitial Ad
+        myInterstitialAd = InterstitialAdPresenter.init(MainActivity.this)
+                .setAdUnitId(getString(R.string.interstitial_ad_unit_id))
+                .addTestDevice("730A5BC6F75277B16C997FF87D646F9D")
+                .load();
+    }
+
+    private void initBeginning() {
+
+        // Score is 0 in the beginning
+        mScore = new Score(0);
+        textViewScore.setText(mScore.toString());
+
+        // Difficulty is EASY in the beginning
+        mDifficulty = new Difficulty(mScore, this);
+        mDifficulty.setGoogleApiClient(mGoogleApiClient);
+        handleLevelChanges();
+
+        // initiliaze Best Score
+        mBest = Prefs.getInt(PREFS_KEY_BEST, 0);
+
+        isGameOverDialogShown = false;
+
+    }
+
+    private void initViewComponents() {
         backgroundLayout = (LinearLayout) findViewById(R.id.backgroundLayout);
-        buttonTrue = (Button) findViewById(R.id.buttonTrue);
-        buttonFalse = (Button) findViewById(R.id.buttonFalse);
-        textViewIslem = (TextView) findViewById(R.id.textViewIslem);
+        textViewBolunen = (TextView) findViewById(R.id.textViewBolunen);
+        textViewBolen = (TextView) findViewById(R.id.textViewBolen);
         textViewScore = (TextView) findViewById(R.id.textViewScore);
+        imgVolume = (ImageView) findViewById(R.id.imageViewVolume);
         mProgressTimer = (RoundCornerProgressBar) findViewById(R.id.progressTimer);
         mProgressDifficulties = new RoundCornerProgressBar[]{null,
                 (RoundCornerProgressBar) findViewById(R.id.progressEasy),
@@ -53,95 +206,24 @@ public class MainActivity extends Activity {
                 (RoundCornerProgressBar) findViewById(R.id.progressHard),
                 (RoundCornerProgressBar) findViewById(R.id.progressExpert),
                 (RoundCornerProgressBar) findViewById(R.id.progressGenius)};
-
-
-        // Score is 0 in the beginning
-        mScore = new Score(0);
-        textViewScore.setText(mScore.toString());
-
-        // Difficulty is EASY in the beginning
-        backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-        mDifficulty = new Difficulty(mScore);
-        mProgressDifficulties[Difficulty.EASY].setProgress(1);
-        mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
-
-
-        // initiliaze IslemSecici
-        mIslemSecici = new Random();
-
-        newDortIslem();
-
-        buttonTrue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mIslem.isTrue()) {
-                    plusScore();
-                    newDortIslem();
-                } else gameOver();
-            }
-        });
-
-        buttonFalse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!(mIslem.isTrue())) {
-                    plusScore();
-                    newDortIslem();
-                } else gameOver();
-            }
-        });
-
+        buttons = new FButton[]{(FButton) findViewById(R.id.button2),
+                (FButton) findViewById(R.id.button3),
+                (FButton) findViewById(R.id.button4),
+                (FButton) findViewById(R.id.button5)};
     }
-
-    /*private void minusScore() {
-        mTimer.cancel();
-        mScore.minus(mDifficulty);
-        textViewScore.setText(String.valueOf(mScore));
-        handleLevelChanges();
-    }*/
 
     private void plusScore() {
         mTimer.cancel();
         // Zorluk seviyesine göre scoru ayarla
         mScore.plus(mDifficulty);
         textViewScore.setText(String.valueOf(mScore));
-        YoYo.with(Techniques.Pulse).duration(700).playOn(textViewScore);
+        YoYo.with(Techniques.Pulse).duration(500).playOn(textViewScore);
         handleLevelChanges();
     }
 
     private void handleLevelChanges() {
-        switch (mDifficulty.getLevel()) {
-            case Difficulty.EASY:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.MEDIUM:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.medium_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.medium_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.HARD:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.hard_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.hard_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.EXPERT:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.expert_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.expert_color));
-                handleProgressDifficulties();
-                break;
-            case Difficulty.GENIUS:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.genius_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.genius_color));
-                handleProgressDifficulties();
-                break;
-            default:
-                mProgressTimer.setProgressColor(getResources().getColor(R.color.easy_color));
-                backgroundLayout.setBackgroundColor(getResources().getColor(R.color.easy_color));
-                handleProgressDifficulties();
-        }
-
+        backgroundLayout.setBackgroundColor(mDifficulty.getColor());
+        handleProgressDifficulties();
     }
 
     private void handleProgressDifficulties() {
@@ -155,69 +237,175 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void newDortIslem() {
-        mTimer = new GameTimer(getTime(), 1);
-        mProgressTimer.setMax(getTime());
-        mProgressTimer.setProgress(getTime());
+    private void newIslem() {
+        mTimer = new GameTimer(mDifficulty.getTime(), 1);
+        mProgressTimer.setMax(mDifficulty.getTime());
+        mProgressTimer.setProgress(mDifficulty.getTime());
         mTimer.start();
 
-        AbstractDortIslemBuilder builder;
-        switch (mIslemSecici.nextInt(2)) {
-            case TOPLAMA:
-                builder = new ToplamaBuilder(); break;
-            case CIKARMA:
-                builder = new CikarmaBuilder(); break;
-            // TODO : diger islemler eklenecek
-            // TODO : veya sadece Freaking Division olabilir. Bölünen progressTimer'ın üstünde bölen altında olabilir. aşağıya da doğru yanlış yerine 4 tane ardışık sayı konur oyuncu doğru olanı seçer.
-            default:
-                builder = new ToplamaBuilder(); break;
-        }
+        mIslem = mIslemFactory.makeIslem(mDifficulty);
 
-        builder.setDifficulty(mDifficulty);
-        builder.setX();
-        builder.setY();
-        mIslem = builder.getDortIslem();
+        YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolunen);
+        YoYo.with(Techniques.SlideInRight).duration(100).playOn(textViewBolen);
 
-        textViewIslem.setText(mIslem.toString());
-    }
-
-    private long getTime() {
-        double sn;
-
-        switch (mDifficulty.getLevel()) {
-            case Difficulty.EASY:
-                sn = 1;
-                break;
-            case Difficulty.MEDIUM:
-                sn = 1.5;
-                break;
-            case Difficulty.HARD:
-                sn = 2;
-                break;
-            case Difficulty.EXPERT:
-                sn = 2.5;
-                break;
-            case Difficulty.GENIUS:
-                sn = 3;
-                break;
-            default:
-                sn = 1;
-        }
-
-        return (long) (1000*sn);
+        textViewBolunen.setText(String.valueOf(mIslem.getX()));
+        textViewBolen.setText(String.valueOf(mIslem.getY()));
     }
 
     public void gameOver() {
-        mTimer.cancel();
-        // TODO: Oyun bitişini farklı yansıt. Bu geçici çözüm.
-        Toast.makeText(this, "Oyun bitti", Toast.LENGTH_SHORT).show();
+
+        if(Prefs.getBoolean(PREFS_KEY_VIBRATION, true)) {
+            vibrator.vibrate(100);
+        }
+
+        // TODO: playSound(R.raw.wrong_answer);
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialoglayout = inflater.inflate(R.layout.game_over_dialog, null);
+        TypefaceHelper.typeface(dialoglayout);
+        TextView dialogScore = (TextView) dialoglayout.findViewById(R.id.dialogTextScore);
+        dialogScore.setText(String.valueOf(mScore.getState()));
+        TextView dialogBest = (TextView) dialoglayout.findViewById(R.id.dialogTextBest);
+        if (isHighScore()) {
+            mBest = mScore.getState();
+            dialogBest.setTextColor(getResources().getColor(R.color.hard_color));
+            Toast.makeText(this, "You have new Best Score: " + mBest, Toast.LENGTH_LONG).show();
+            Prefs.putInt(PREFS_KEY_BEST, mBest);
+            if (mGoogleApiClient.isConnected()) {
+                // Submit score to the leaderboard in Google Play Game Services
+                Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_id), mBest);
+            }
+        }
+        dialogBest.setText(String.valueOf(mBest));
+        FButton buttonPlay = (FButton) dialoglayout.findViewById(R.id.buttonPlayDialog);
+        FButton buttonIntro = (FButton) dialoglayout.findViewById(R.id.buttonIntroDialog);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle("Oyun Bitti");
-        dialogBuilder.setMessage("Puanınız: " + mScore.getState());
-        dialogBuilder.setPositiveButton("OK", null);
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
+        dialogBuilder.setView(dialoglayout);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialogGameOver = dialogBuilder.create();
+
+        buttonPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogGameOver.cancel();
+                myInterstitialAd.displayEverySec(10);
+                initBeginning();
+                newIslem();
+                mTimer.cancel();
+            }
+        });
+
+        buttonIntro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, IntroActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // If set, this activity will become the start of a new task on this history stack.
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK); // If set in an Intent passed to Context.startActivity(), this flag will cause any existing task that would be associated with the activity to be cleared before the activity is started.
+                dialogGameOver.cancel();
+                startActivity(intent);
+            }
+        });
+
+        // TODO: dialog gösteriminde oluşan hata düzeltilmeli
+        if (isGameOverDialogShown == false) {
+            dialogGameOver.show();
+            isGameOverDialogShown = true;
+        }
+
+    }
+
+    private boolean isHighScore() {
+        return mScore.getState() > mBest;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // oyuncu game servicese bağlanmak istediyse
+        if (!Prefs.getBoolean(PREFS_KEY_CONNECT_FAIL, true)) {
+            mGoogleApiClient.connect();
+            Log.d(TAG, "onStart() is called");
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+
+        Log.d(TAG, "onStop() is called");
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        // is it First Time playing?
+        if (Prefs.getBoolean(PREFS_KEY_FIRST_TIME, true)) {
+            Prefs.putBoolean(PREFS_KEY_FIRST_TIME, false);
+            Log.d(TAG, "FIRST TIME -> FALSE yapıldı");
+            // it is first time playing, so unlock 'Abacus' badge
+            Games.Achievements.unlock(mGoogleApiClient, getString(R.string.achievement_abacus_id));
+        }
+        Log.d(TAG, "Connection : ok");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        // Attempt to reconnect
+        mGoogleApiClient.connect();
+        Log.d(TAG, "Connection : suspended");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+        if (mResolvingConnectionFailure) {
+            // already resolving
+            return;
+        }
+
+        // if the sign-in button was clicked or if auto sign-in is enabled,
+        // launch the sign-in flow
+        if (mSignInClicked || mAutoStartSignInFlow) {
+            mAutoStartSignInFlow = false;
+            mSignInClicked = false;
+            mResolvingConnectionFailure = true;
+
+            // Attempt to resolve the connection failure using BaseGameUtils.
+            // The R.string.signin_other_error value should reference a generic
+            // error string in your strings.xml file, such as "There was
+            // an issue with sign-in, please try again later."
+            if (!BaseGameUtils.resolveConnectionFailure(this,
+                    mGoogleApiClient, connectionResult,
+                    RC_SIGN_IN, getString(R.string.signin_other_error))) {
+                mResolvingConnectionFailure = false;
+            }
+        }
+
+        // Put code here to display the sign-in button
+        Log.d(TAG, "onConnectionFailed() is called");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+            mSignInClicked = false;
+            mResolvingConnectionFailure = false;
+            if (resultCode == RESULT_OK) {
+                mGoogleApiClient.connect();
+            } else {
+                // Bring up an error dialog to alert the user that sign-in
+                // failed. The R.string.signin_failure should reference an error
+                // string in your strings.xml file that tells the user they
+                // could not be signed in, such as "Unable to sign in."
+                BaseGameUtils.showActivityResultError(this,
+                        requestCode, resultCode, R.string.signin_failure);
+
+            }
+        }
     }
 
     public class GameTimer extends CountDownTimer {
@@ -246,28 +434,60 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Dialogdaki hatayı gidermek için alternatif timer sınıfı yazmaya çalıştım ama şuan çalışmıyor.
+    private class GameTimerr extends AsyncTask<Void, Long, Void> {
 
+        private long millisInFuture;
+        private long countDownInterval;
 
-
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        private GameTimerr(long millisInFuture, long countDownInterval) {
+            this.millisInFuture = millisInFuture;
+            this.countDownInterval = countDownInterval;
         }
 
-        return super.onOptionsItemSelected(item);
-    }*/
+        public void start() {
+            if (isCancelled()) {
+                this.execute();
+            }
+        }
+
+        public void cancel() {
+            this.cancel(true);
+        }
+
+        // A callback method executed on UI thread on starting the task
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        // A callback method executed on non UI thread, invoked after
+        // onPreExecute method if exists
+        @Override
+        protected Void doInBackground(Void... params) {
+            for(long i=millisInFuture;i>=0;i--){
+                try {
+                    Thread.sleep(countDownInterval);
+                    publishProgress(i); // Invokes onProgressUpdate()
+                } catch (InterruptedException e) {
+                }
+            }
+            return null;
+        }
+
+        // A callback method executed on UI thread, invoked by the publishProgress()
+        // from doInBackground() method
+        @Override
+        protected void onProgressUpdate(Long... values) {
+            // Burada, UI da timer bir şekilde ifade edilecek.
+            mProgressTimer.setProgress(Float.parseFloat(Integer.toString(values[0].intValue())));
+        }
+
+        // A callback method executed on UI thread, invoked after the completion of the task
+        @Override
+        protected void onPostExecute(Void result) {
+            //timer bittiğinde oyun biter
+            gameOver();
+        }
+    }
 }

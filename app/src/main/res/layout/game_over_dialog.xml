@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fbutton="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/dialog_padding"
+    android:id="@+id/backLayout"
+    android:background="@color/app_color">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textSize="@dimen/game_over_dialog_title_text_size"
+            android:textColor="@color/text_color"
+            android:text="@string/game_over" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"></RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:textSize="@dimen/game_over_dialog_label_text_size"
+            android:textColor="@color/text_color"
+            android:text="@string/dialog_score_label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:textSize="@dimen/game_over_dialog_value_text_size"
+            android:textColor="@color/text_color"
+            android:text="0"
+            android:id="@+id/dialogTextScore" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"></RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:textSize="@dimen/game_over_dialog_label_text_size"
+            android:textColor="@color/text_color"
+            android:text="@string/dialog_best_label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:textSize="@dimen/game_over_dialog_value_text_size"
+            android:textColor="@color/text_color"
+            android:text="0"
+            android:id="@+id/dialogTextBest" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="60dp">
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:layout_centerHorizontal="true">
+
+            <info.hoang8f.widget.FButton
+                fbutton:buttonColor="@color/easy_color"
+                fbutton:cornerRadius="16dp"
+                fbutton:shadowEnabled="false"
+                android:textColor="@color/text_color"
+                android:drawableLeft="@drawable/ic_play"
+                android:paddingLeft="6dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/buttonPlayDialog" />
+
+            <info.hoang8f.widget.FButton
+                fbutton:buttonColor="@color/medium_color"
+                fbutton:cornerRadius="16dp"
+                fbutton:shadowEnabled="false"
+                android:textColor="@color/text_color"
+                android:drawableLeft="@drawable/ic_intro"
+                android:paddingLeft="5dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentRight="true"
+                android:id="@+id/buttonIntroDialog" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,129 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fbutton="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_color"
+    tools:context="com.sembozdemir.dortislem.IntroActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:weightSum="1">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.75">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/imageView"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                android:src="@drawable/freakingdiv_logo" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_above="@+id/centerDivider">
+
+                    <info.hoang8f.widget.FButton
+                        fbutton:buttonColor="@color/easy_color"
+                        fbutton:cornerRadius="16dp"
+                        fbutton:shadowEnabled="false"
+                        android:textColor="@color/text_color"
+                        android:drawableLeft="@drawable/ic_play"
+                        android:paddingLeft="6dp"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/buttonPlay" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:padding="20dp"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:id="@+id/centerDivider">
+
+                    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                        android:id="@+id/progressCenter"
+                        android:layout_height="@dimen/progressBarHeight"
+                        android:layout_width="@dimen/progressBarWidth"
+                        app:rcBackgroundColor="@color/spin_background_color"
+                        app:rcProgressColor="@color/app_color"
+                        app:rcBackgroundPadding="2dp"
+                        android:layout_centerHorizontal="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@+id/centerDivider">
+
+                    <info.hoang8f.widget.FButton
+                        fbutton:buttonColor="@color/hard_color"
+                        fbutton:cornerRadius="16dp"
+                        fbutton:shadowEnabled="false"
+                        android:textColor="@color/text_color"
+                        android:drawableLeft="@drawable/ic_games_achievements"
+                        android:paddingLeft="5dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:id="@+id/buttonAchievements" />
+
+                    <View
+                        android:layout_width="25dp"
+                        android:layout_height="match_parent"
+                        />
+
+                    <info.hoang8f.widget.FButton
+                        fbutton:buttonColor="@color/genius_color"
+                        fbutton:cornerRadius="16dp"
+                        fbutton:shadowEnabled="false"
+                        android:textColor="@color/text_color"
+                        android:drawableLeft="@drawable/ic_games_leaderboards"
+                        android:paddingLeft="5dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:id="@+id/buttonLeaderboard" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                ads:adSize="SMART_BANNER"
+                ads:adUnitId="@string/banner_ad_unit_id">
+            </com.google.android.gms.ads.AdView>
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

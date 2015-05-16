@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_id">988749034066</string>
+
+    <string name="achievement_abacus_id">CgkI0uSjsOMcEAIQAg</string>
+    <string name="achievement_beginner_id">CgkI0uSjsOMcEAIQAw</string>
+    <string name="achievement_amatuer_id">CgkI0uSjsOMcEAIQBA</string>
+    <string name="achievement_hardplayer_id">CgkI0uSjsOMcEAIQBQ</string>
+    <string name="achievement_expert_id">CgkI0uSjsOMcEAIQBg</string>
+    <string name="achievement_genius_id">CgkI0uSjsOMcEAIQBw</string>
+    <string name="achievement_einstein_id">CgkI0uSjsOMcEAIQCQ</string>
+
+    <string name="leaderboard_old_id">CgkI0uSjsOMcEAIQCA</string>
+    <string name="leaderboard_id">CgkI0uSjsOMcEAIQCg</string>
+
+
+    <string name="banner_ad_unit_id">ca-app-pub-7454008426563663/3806654838</string>
+    <string name="interstitial_ad_unit_id">ca-app-pub-7454008426563663/2469522439</string>
+</resources>
